@@ -1,3 +1,5 @@
 # CallBlocker
 Block foreign calls and disruptive calls
-<img width="399" height="882" alt="image" src="https://github.com/user-attachments/assets/cd60f69b-4f96-4977-be41-784d934535b0" />
+
+<img width="395" height="862" alt="image" src="https://github.com/user-attachments/assets/7f647bbd-8f04-4a01-8e1e-ac977e4f08da" />
+
