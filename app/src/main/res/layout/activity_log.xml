@@ -6,9 +6,28 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/logText"
-        android:textSize="18sp"
+        android:text="Estoloki"
+        android:textSize="20sp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp" />
+
+    <ListView
+        android:id="@+id/logList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/clearLogBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tyhjennä loki" />
+
+    <Button
+        android:id="@+id/backBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Palaa päävalikkoon" />
 
 </LinearLayout>

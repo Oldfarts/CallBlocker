@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="Sallitut numerot"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp" />
+
+    <ListView
+        android:id="@+id/allowedNumbersList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:dividerHeight="1dp" />
+
+    <EditText
+        android:id="@+id/allowedNumberInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Syötä sallittu numero esim. +447123456789"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/addAllowedNumberBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lisää sallittu numero"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/removeAllowedNumberBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Poista sallittu numero"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/backBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Palaa päävalikkoon"
+        android:padding="10dp" />
+
+</LinearLayout>

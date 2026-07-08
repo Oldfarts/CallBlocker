@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="Kielletyt numerot"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp" />
+
+    <ListView
+        android:id="@+id/blockedNumbersList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:dividerHeight="1dp" />
+
+    <EditText
+        android:id="@+id/blockedNumberInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Syötä numero esim. +358401234567"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/addBlockedNumberBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lisää numero"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/removeBlockedNumberBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Poista numero"
+        android:padding="10dp" />
+
+<Button
+    android:id="@+id/backBtn"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Palaa päävalikkoon"
+    android:padding="10dp" />
+
+
+</LinearLayout>

@@ -11,18 +11,44 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CallBlocker">
+
+        <!-- Pääaktiviteetti -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.CallBlocker"
             android:windowSoftInputMode="adjustResize">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
+        <!-- Uudet näkymät -->
+        <activity android:name=".AllowedNumbersActivity" />
+        <activity android:name=".BlockedNumbersActivity" />
+        <activity android:name=".BlockedCountriesActivity" />
+
+        <!-- Lokinäkymät -->
+        <activity android:name=".LogActivity" />
+        <activity android:name=".SpamReportActivity" />
+
+
+        <!-- Puhelunestopalvelu -->
+        <service
+            android:name=".CallBlockerService"
+            android:permission="android.permission.BIND_CALL_SCREENING_SERVICE"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.telecom.CallScreeningService" />
+            </intent-filter>
+
+        </service>
+
     </application>
 
 </manifest>

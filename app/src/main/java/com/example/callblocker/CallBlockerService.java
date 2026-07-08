@@ -18,10 +18,10 @@ public class CallBlockerService extends CallScreeningService {
         boolean blockForeign = prefs.getBoolean("blockForeign", false);
         boolean blockSpam = prefs.getBoolean("blockSpam", false);
 
-        Set<String> allowedNumbers =
-                new HashSet<>(prefs.getStringSet("allowedNumbers", new HashSet<>()));
-        Set<String> blockedCountries =
-                new HashSet<>(prefs.getStringSet("blockedCountries", new HashSet<>()));
+        // Uudet listat
+        Set<String> allowedNumbers = prefs.getStringSet("allowedNumbers", new HashSet<>());
+        Set<String> blockedCountries = prefs.getStringSet("blockedCountries", new HashSet<>());
+        Set<String> blockedNumbers = prefs.getStringSet("blockedNumbers", new HashSet<>());
 
         String number = "";
         if (callDetails.getHandle() != null) {
@@ -30,35 +30,42 @@ public class CallBlockerService extends CallScreeningService {
 
         boolean shouldBlock = false;
 
-        // Estetty tuntematon numero
+        // Tuntematon numero
         if (number == null || number.trim().isEmpty()) {
             shouldBlock = true;
             addLog("Estetty tuntematon numero");
         }
 
-        // Estetty epäilyttävä puhelu (heuristiikka)
+        // Spam-soittaja
         if (blockSpam && isSpam(callDetails)) {
             shouldBlock = true;
             addSpamReport(number);
-            addLog("Estetty epäilyttävä puhelu: " + number);
+            addLog("Estetty häirikkösoittaja: " + number);
         }
 
-        // Sallitut numerot ohittavat estot
+        // ⭐ Sallittu numero → ei estetä koskaan
         if (allowedNumbers.contains(number)) {
             shouldBlock = false;
+            addLog("Sallittu numero: " + number);
         }
 
-        // Estetty ulkomainen numero
-        if (blockForeign && !isFinnishNumber(number)) {
+        // ⭐ Estä kielletty numero
+        if (blockedNumbers.contains(number)) {
+            shouldBlock = true;
+            addLog("Estetty kielletty numero: " + number);
+        }
+
+        // ⭐ Estä ulkomainen numero (jos ei sallittu)
+        if (blockForeign && !isFinnishNumber(number) && !allowedNumbers.contains(number)) {
             shouldBlock = true;
             addLog("Estetty ulkomainen numero: " + number);
         }
 
-        // Estetty mustan listan numero
+        // ⭐ Estä kielletty maatunnus (jos ei sallittu)
         for (String code : blockedCountries) {
-            if (number != null && number.startsWith(code)) {
+            if (number.startsWith(code) && !allowedNumbers.contains(number)) {
                 shouldBlock = true;
-                addLog("Estetty mustan listan numero: " + number);
+                addLog("Estetty kielletty maatunnus: " + number);
                 break;
             }
         }
@@ -79,22 +86,19 @@ public class CallBlockerService extends CallScreeningService {
 
     private boolean isSpam(Call.Details details) {
 
-        int status = 0;
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            status = details.getCallerNumberVerificationStatus();
-        }
-
-        boolean unverified = (status == 0 || status == 2);
-
         String number = "";
         if (details.getHandle() != null) {
             number = details.getHandle().getSchemeSpecificPart();
         }
 
+        if (number == null || number.isEmpty()) return true;
+
         boolean foreign = !isFinnishNumber(number);
 
-        return unverified && foreign;
+        boolean shortCallHeuristic =
+                details.getCallDirection() == Call.Details.DIRECTION_INCOMING;
+
+        return foreign && shortCallHeuristic;
     }
 
     private boolean isFinnishNumber(String number) {
@@ -116,16 +120,14 @@ public class CallBlockerService extends CallScreeningService {
 
     private void addLog(String entry) {
         SharedPreferences prefs = getSharedPreferences("log", MODE_PRIVATE);
-        Set<String> logs =
-                new HashSet<>(prefs.getStringSet("entries", new HashSet<>()));
+        Set<String> logs = prefs.getStringSet("entries", new HashSet<>());
         logs.add(entry);
         prefs.edit().putStringSet("entries", logs).apply();
     }
 
     private void addSpamReport(String number) {
         SharedPreferences prefs = getSharedPreferences("spam", MODE_PRIVATE);
-        Set<String> spam =
-                new HashSet<>(prefs.getStringSet("entries", new HashSet<>()));
+        Set<String> spam = prefs.getStringSet("entries", new HashSet<>());
         spam.add(number);
         prefs.edit().putStringSet("entries", spam).apply();
     }

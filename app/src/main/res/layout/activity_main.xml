@@ -9,6 +9,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Ulkomaiset puhelut -->
+<TextView
+    android:text="Puhelunestopalvelu käytössä"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
+
+<Switch
+    android:id="@+id/switchCallScreening"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
+
         <TextView
             android:text="Estä ulkomaiset puhelut"
             android:layout_width="match_parent"
@@ -19,6 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <!-- Spam-soittajat -->
         <TextView
             android:text="Estä häirikkösoittajat"
             android:layout_width="match_parent"
@@ -29,40 +41,45 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <TextView
-            android:text="Sallitut numerot (pilkulla eroteltu)"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <EditText
-            android:id="@+id/allowedInput"
+        <!-- Poikkeukset (sallitut numerot) -->
+        <Button
+            android:id="@+id/allowedNumbersBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="+358401234567, 0501234567" />
+            android:text="Sallitut numerot (poikkeukset)"
+            android:padding="10dp" />
 
-        <TextView
-            android:text="Estetyt maatunnukset (pilkulla eroteltu)"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <EditText
-            android:id="@+id/blockedInput"
+        <!-- Kielletyt numerot -->
+        <Button
+            android:id="@+id/blockedNumbersBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="+44, +1, +91" />
+            android:text="Kielletyt numerot"
+            android:padding="10dp" />
 
+        <!-- Kielletyt maatunnukset -->
+        <Button
+            android:id="@+id/blockedCountriesBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kielletyt maatunnukset"
+            android:padding="10dp" />
+
+        <!-- Tallennus -->
         <Button
             android:id="@+id/saveBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tallenna asetukset" />
 
+        <!-- Roolin aktivointi 
         <Button
             android:id="@+id/roleBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ota puhelunestopalvelu käyttöön" />
+            android:text="Ota puhelunestopalvelu käyttöön" />-->
 
+        <!-- Lokit -->
         <Button
             android:id="@+id/logBtn"
             android:layout_width="match_parent"
