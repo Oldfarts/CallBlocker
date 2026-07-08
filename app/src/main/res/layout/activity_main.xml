@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Estä ulkomaiset puhelut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Switch
+            android:id="@+id/switchBlockForeign"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:text="Estä häirikkösoittajat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Switch
+            android:id="@+id/switchBlockSpam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:text="Sallitut numerot (pilkulla eroteltu)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/allowedInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="+358401234567, 0501234567" />
+
+        <TextView
+            android:text="Estetyt maatunnukset (pilkulla eroteltu)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/blockedInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="+44, +1, +91" />
+
+        <Button
+            android:id="@+id/saveBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tallenna asetukset" />
+
+        <Button
+            android:id="@+id/roleBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ota puhelunestopalvelu käyttöön" />
+
+        <Button
+            android:id="@+id/logBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Näytä estoloki" />
+
+        <Button
+            android:id="@+id/spamBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Näytä spam-raportti" />
+
+    </LinearLayout>
+</ScrollView>
