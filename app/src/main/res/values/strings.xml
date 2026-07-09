@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CallBlocker</string>
+    <string name="accessibility_description">CallBlocker tarkkailee puhelunäkymää ja estää määritetyt puhelut.</string>
 </resources>

@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Otsikkopalkki -->
         <LinearLayout
             android:orientation="horizontal"
             android:background="@color/colorPrimary"
@@ -35,7 +34,6 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <!-- Puhelunestopalvelu -->
         <LinearLayout
             style="@style/CallBlocker.Card"
             android:orientation="vertical"
@@ -54,7 +52,7 @@
                 style="@style/CallBlocker.Label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ota puhelunestopalvelu käyttöön, jotta estot toimivat taustalla." />
+                android:text="Ota puhelunestopalvelu käyttöön, jotta estot toimivat taustalla OnePlus Nord CE 3 Litessä." />
 
             <Switch
                 android:id="@+id/switchCallScreening"
@@ -63,7 +61,6 @@
                 android:text="Puhelunestopalvelu käytössä" />
         </LinearLayout>
 
-        <!-- Ulkomaiset puhelut -->
         <LinearLayout
             style="@style/CallBlocker.Card"
             android:orientation="vertical"
@@ -98,7 +95,6 @@
                 android:text="Sallitut maatunnukset (poikkeukset)" />
         </LinearLayout>
 
-        <!-- Häirikkösoittajat -->
         <LinearLayout
             style="@style/CallBlocker.Card"
             android:orientation="vertical"
@@ -126,7 +122,6 @@
                 android:text="Estä häirikkösoittajat" />
         </LinearLayout>
 
-        <!-- Numerolistat -->
         <LinearLayout
             style="@style/CallBlocker.Card"
             android:orientation="vertical"
@@ -155,7 +150,6 @@
                 android:text="Kielletyt numerot" />
         </LinearLayout>
 
-        <!-- Lokit ja raportit -->
         <LinearLayout
             style="@style/CallBlocker.Card"
             android:orientation="vertical"
@@ -184,7 +178,6 @@
                 android:text="Näytä spam-raportti" />
         </LinearLayout>
 
-        <!-- Tallenna asetukset -->
         <Button
             android:id="@+id/saveBtn"
             style="@style/CallBlocker.Button.Primary"

@@ -1,146 +1,87 @@
 package com.example.callblocker;
 
 import android.content.SharedPreferences;
-import android.telecom.CallScreeningService;
 import android.telecom.Call;
-import android.telecom.CallScreeningService.CallResponse;
-
+import android.telecom.CallScreeningService;
+import android.util.Log;
 import java.util.HashSet;
 import java.util.Set;
 
 public class CallBlockerService extends CallScreeningService {
 
+    private static final String TAG = "CallBlocker";
+
     @Override
     public void onScreenCall(Call.Details callDetails) {
+        Log.d(TAG, "CallScreeningService STARTED");
+
+        if (callDetails == null || callDetails.getHandle() == null) {
+            // Varmistetaan ettei sovellus kaadu, jos puhelun tiedot ovat tyhjät
+            respondToCall(callDetails, new CallResponse.Builder().setDisallowCall(false).build());
+            return;
+        }
+
+        String number = callDetails.getHandle().getSchemeSpecificPart();
+        Log.d(TAG, "Incoming number = " + number);
 
         SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
-
         boolean blockForeign = prefs.getBoolean("blockForeign", false);
         boolean blockSpam = prefs.getBoolean("blockSpam", false);
 
-        // Sallitut numerot (poikkeukset)
-        Set<String> allowedNumbers = prefs.getStringSet("allowedNumbers", new HashSet<>());
+        // Luodaan uusi setti, jotta viittaukset eivät sekoita Androidin välimuistia
+        Set<String> blockedNumbers = new HashSet<>(prefs.getStringSet("blockedNumbers", new HashSet<>()));
 
-        // Sallitut maatunnukset (poikkeukset)
-        Set<String> allowedCountries = prefs.getStringSet("allowedCountries", new HashSet<>());
+        boolean block = false;
+        String logReason = "";
 
-        // Kielletyt numerot
-        Set<String> blockedNumbers = prefs.getStringSet("blockedNumbers", new HashSet<>());
-
-        String number = "";
-        if (callDetails.getHandle() != null) {
-            number = callDetails.getHandle().getSchemeSpecificPart();
+        // 1. Kielletty numero
+        if (NumberUtils.containsNumber(blockedNumbers, number)) {
+            block = true;
+            logReason = number + " estetty: kielletty numero";
+        }
+        // 2. Ulkomaiset numerot
+        else if (blockForeign && !NumberUtils.isFinnishNumber(number)) {
+            block = true;
+            logReason = number + " estetty: ulkomainen numero";
+        }
+        // 3. Spam (tulevaisuuden laajennus)
+        else if (blockSpam) {
+            // Tähän tulee myöhemmin tietokantatarkistus.
+            // Jos tunnistetaan spamiksi, block = true ja logReason = ...
         }
 
-        boolean shouldBlock = false;
+        // Rakennetaan vastaus
+        CallResponse.Builder response = new CallResponse.Builder();
 
-        // Tuntematon numero
-        if (number == null || number.trim().isEmpty()) {
-            shouldBlock = true;
-            addLog(number, "Tuntematon numero");
-        }
-
-        // Spam-soittaja
-        if (blockSpam && isSpam(callDetails)) {
-            shouldBlock = true;
-            addSpamReport(number);
-            addLog(number, "Häirikkösoittaja (spam-heuristiikka)");
-        }
-
-        // Sallittu numero
-        if (allowedNumbers.contains(number)) {
-            shouldBlock = false;
-            addLog(number, "Sallittu numero (poikkeus)");
-        }
-
-        // Kielletty numero
-        if (blockedNumbers.contains(number)) {
-            shouldBlock = true;
-            addLog(number, "Numero on kiellettyjen listalla");
-        }
-
-        // Ulkomainen numero
-        if (blockForeign && !isFinnishNumber(number)) {
-
-            boolean allowedCountry = false;
-
-            for (String code : allowedCountries) {
-                if (number.startsWith(code)) {
-                    allowedCountry = true;
-                    break;
-                }
-            }
-
-            if (!allowedCountry) {
-                shouldBlock = true;
-                addLog(number, "Ulkomainen numero — maatunnus ei sallittu");
-            }
-        }
-
-        CallResponse.Builder builder = new CallResponse.Builder();
-
-        if (shouldBlock) {
-            builder.setDisallowCall(true)
+        if (block) {
+            Log.d(TAG, "CALL BLOCKED");
+            response.setDisallowCall(true)
                     .setRejectCall(true)
-                    .setSkipCallLog(false)
+                    .setSkipCallLog(false) // Näkyy puhelimen omassa lokissa estettynä
                     .setSkipNotification(true);
+
+            // Tehdään lokikirjaus taustalla, ettei se viivästytä puhelun käsittelyä
+            final String finalLogReason = logReason;
+            new Thread(() -> addLog(finalLogReason)).start();
+
         } else {
-            builder.setDisallowCall(false);
+            Log.d(TAG, "CALL ALLOWED");
+            response.setDisallowCall(false);
         }
 
-        respondToCall(callDetails, builder.build());
+        respondToCall(callDetails, response.build());
     }
 
-    private boolean isSpam(Call.Details details) {
+    private synchronized void addLog(String text) {
+        if (text == null || text.isEmpty()) return;
 
-        String number = "";
-        if (details.getHandle() != null) {
-            number = details.getHandle().getSchemeSpecificPart();
-        }
+        SharedPreferences logPrefs = getSharedPreferences("log", MODE_PRIVATE);
+        Set<String> logs = new HashSet<>(logPrefs.getStringSet("entries", new HashSet<>()));
 
-        if (number == null || number.isEmpty()) return true;
+        // Lisätään uusi lokirivi
+        logs.add(System.currentTimeMillis() + " : " + text);
 
-        boolean foreign = !isFinnishNumber(number);
-
-        boolean shortCallHeuristic =
-                details.getCallDirection() == Call.Details.DIRECTION_INCOMING;
-
-        return foreign && shortCallHeuristic;
-    }
-
-    private boolean isFinnishNumber(String number) {
-        if (number == null || number.trim().isEmpty()) return false;
-
-        // Suomi sallitaan aina
-        if (number.startsWith("+358")) return true;
-
-        // Kotimaiset GSM-prefixit
-        String[] prefixes = {
-                "040", "041", "042", "043", "044", "045", "046", "049",
-                "050", "051", "052", "053", "054", "055", "056", "059"
-        };
-
-        for (String p : prefixes) {
-            if (number.startsWith(p)) return true;
-        }
-
-        return false;
-    }
-
-    private void addLog(String number, String reason) {
-        SharedPreferences prefs = getSharedPreferences("log", MODE_PRIVATE);
-        Set<String> logs = prefs.getStringSet("entries", new HashSet<>());
-
-        String entry = "Numero: " + number + " — Syy: " + reason;
-
-        logs.add(entry);
-        prefs.edit().putStringSet("entries", logs).apply();
-    }
-
-    private void addSpamReport(String number) {
-        SharedPreferences prefs = getSharedPreferences("spam", MODE_PRIVATE);
-        Set<String> spam = prefs.getStringSet("entries", new HashSet<>());
-        spam.add(number);
-        prefs.edit().putStringSet("entries", spam).apply();
+        // commit() taustasäikeessä varmistaa, että tiedot kirjoitetaan heti levylle
+        logPrefs.edit().putStringSet("entries", logs).commit();
     }
 }
