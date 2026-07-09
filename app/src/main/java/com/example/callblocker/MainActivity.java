@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.app.role.RoleManager;
 import android.widget.Button;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,10 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     private Switch switchBlockForeign, switchBlockSpam, switchCallScreening;
+    private TextView titleCallScreening, titleForeign, titleSpam;
 
     private Button saveBtn, logBtn, spamBtn;
-
-    // Valikkonapit
     private Button blockedNumbersBtn, allowedCountriesBtn, allowedNumbersBtn;
 
     @Override
@@ -26,12 +26,15 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
 
-        // Asetuskytkimet
+        // UI-komponentit
         switchBlockForeign = findViewById(R.id.switchBlockForeign);
         switchBlockSpam = findViewById(R.id.switchBlockSpam);
         switchCallScreening = findViewById(R.id.switchCallScreening);
 
-        // Napit
+        titleCallScreening = findViewById(R.id.titleCallScreening);
+        titleForeign = findViewById(R.id.titleForeign);
+        titleSpam = findViewById(R.id.titleSpam);
+
         saveBtn = findViewById(R.id.saveBtn);
         logBtn = findViewById(R.id.logBtn);
         spamBtn = findViewById(R.id.spamBtn);
@@ -44,20 +47,25 @@ public class MainActivity extends AppCompatActivity {
         switchBlockForeign.setChecked(prefs.getBoolean("blockForeign", false));
         switchBlockSpam.setChecked(prefs.getBoolean("blockSpam", false));
 
+        // Päivitä väritys
+        updateSwitchColor(switchBlockForeign, titleForeign);
+        updateSwitchColor(switchBlockSpam, titleSpam);
+
         // Puhelunestopalvelun tila
         RoleManager rm = getSystemService(RoleManager.class);
         boolean isActive = rm.isRoleHeld(RoleManager.ROLE_CALL_SCREENING);
         switchCallScreening.setChecked(isActive);
+        updateSwitchColor(switchCallScreening, titleCallScreening);
 
         // Puhelunestopalvelu päälle/pois
         switchCallScreening.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
             if (isChecked) {
-                // Pyydä puhelunestopalvelun roolia
                 Intent intent = rm.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING);
                 startActivity(intent);
+                updateSwitchColor(switchCallScreening, titleCallScreening);
+
             } else {
-                // Roolia ei voi poistaa ohjelmallisesti useimmissa Android-versioissa
                 Toast.makeText(
                         MainActivity.this,
                         "Puhelunestopalvelua ei voi poistaa sovelluksesta.\n" +
@@ -66,19 +74,25 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG
                 ).show();
 
-                // Päivitä kytkin oikeaan tilaan
                 boolean active = rm.isRoleHeld(RoleManager.ROLE_CALL_SCREENING);
                 switchCallScreening.setChecked(active);
+                updateSwitchColor(switchCallScreening, titleCallScreening);
             }
         });
+
+        // Ulkomaiset puhelut
+        switchBlockForeign.setOnCheckedChangeListener((buttonView, isChecked) ->
+                updateSwitchColor(switchBlockForeign, titleForeign));
+
+        // Häirikkösoittajat
+        switchBlockSpam.setOnCheckedChangeListener((buttonView, isChecked) ->
+                updateSwitchColor(switchBlockSpam, titleSpam));
 
         // Tallenna asetukset
         saveBtn.setOnClickListener(v -> {
             SharedPreferences.Editor editor = prefs.edit();
-
             editor.putBoolean("blockForeign", switchBlockForeign.isChecked());
             editor.putBoolean("blockSpam", switchBlockSpam.isChecked());
-
             editor.apply();
 
             Toast.makeText(MainActivity.this, "Asetukset tallennettu", Toast.LENGTH_SHORT).show();
@@ -100,5 +114,18 @@ public class MainActivity extends AppCompatActivity {
 
         spamBtn.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, SpamReportActivity.class)));
+    }
+
+    /**
+     * Vaihtaa kytkimen ja otsikon värin vihreäksi/punaiseksi.
+     */
+    private void updateSwitchColor(Switch sw, TextView title) {
+        if (sw.isChecked()) {
+            sw.setTextColor(getColor(R.color.colorActiveGreen));
+            title.setTextColor(getColor(R.color.colorActiveGreen));
+        } else {
+            sw.setTextColor(getColor(R.color.colorInactiveRed));
+            title.setTextColor(getColor(R.color.colorInactiveRed));
+        }
     }
 }
