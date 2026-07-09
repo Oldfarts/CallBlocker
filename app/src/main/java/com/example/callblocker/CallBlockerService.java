@@ -37,34 +37,33 @@ public class CallBlockerService extends CallScreeningService {
         // Tuntematon numero
         if (number == null || number.trim().isEmpty()) {
             shouldBlock = true;
-            addLog("Estetty tuntematon numero");
+            addLog(number, "Tuntematon numero");
         }
 
         // Spam-soittaja
         if (blockSpam && isSpam(callDetails)) {
             shouldBlock = true;
             addSpamReport(number);
-            addLog("Estetty häirikkösoittaja: " + number);
+            addLog(number, "Häirikkösoittaja (spam-heuristiikka)");
         }
 
-        // ⭐ Sallittu numero → ei estetä koskaan
+        // Sallittu numero
         if (allowedNumbers.contains(number)) {
             shouldBlock = false;
-            addLog("Sallittu numero: " + number);
+            addLog(number, "Sallittu numero (poikkeus)");
         }
 
-        // ⭐ Estä kielletty numero
+        // Kielletty numero
         if (blockedNumbers.contains(number)) {
             shouldBlock = true;
-            addLog("Estetty kielletty numero: " + number);
+            addLog(number, "Numero on kiellettyjen listalla");
         }
 
-        // ⭐ Ulkomaiset numerot (jos ei sallittu)
+        // Ulkomainen numero
         if (blockForeign && !isFinnishNumber(number)) {
 
             boolean allowedCountry = false;
 
-            // Tarkista poikkeusmaat
             for (String code : allowedCountries) {
                 if (number.startsWith(code)) {
                     allowedCountry = true;
@@ -74,7 +73,7 @@ public class CallBlockerService extends CallScreeningService {
 
             if (!allowedCountry) {
                 shouldBlock = true;
-                addLog("Estetty ulkomainen numero: " + number);
+                addLog(number, "Ulkomainen numero — maatunnus ei sallittu");
             }
         }
 
@@ -128,9 +127,12 @@ public class CallBlockerService extends CallScreeningService {
         return false;
     }
 
-    private void addLog(String entry) {
+    private void addLog(String number, String reason) {
         SharedPreferences prefs = getSharedPreferences("log", MODE_PRIVATE);
         Set<String> logs = prefs.getStringSet("entries", new HashSet<>());
+
+        String entry = "Numero: " + number + " — Syy: " + reason;
+
         logs.add(entry);
         prefs.edit().putStringSet("entries", logs).apply();
     }
