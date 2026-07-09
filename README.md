@@ -88,24 +88,8 @@ Android käynnistää CallBlockerServicen automaattisesti jokaisen puhelun yhtey
 
 ## 📂 Projektin rakenne
 
-CallBlocker/
-├── app/
-│   ├── java/com/example/callblocker/
-│   │   ├── MainActivity.java
-│   │   ├── CallBlockerService.java
-│   │   ├── AllowedCountriesActivity.java
-│   │   ├── AllowedNumbersActivity.java
-│   │   ├── BlockedNumbersActivity.java
-│   │   ├── LogActivity.java
-│   │   └── SpamReportActivity.java
-│   └── res/layout/
-│       ├── activity_main.xml
-│       ├── activity_allowed_countries.xml
-│       ├── activity_allowed_numbers.xml
-│       ├── activity_blocked_numbers.xml
-│       ├── activity_log.xml
-│       └── activity_spam_report.xml
-└── README.md
+<img width="657" height="443" alt="image" src="https://github.com/user-attachments/assets/b7176ded-0976-4812-afb7-2381d1adece2" />
+
 
 Koodi
 
