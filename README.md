@@ -103,6 +103,15 @@ Koodi
 
 ---
 
-## 📜 Lisenssi
+## 🔒 Lisenssi — GNU General Public License v3.0
 
-MIT License — voit käyttää, muokata ja jakaa sovellusta vapaasti.
+Tämä projekti on lisensoitu **GNU GPLv3** ‑lisenssillä.
+
+Lyhyesti:
+- Voit käyttää, muokata ja jakaa ohjelmaa vapaasti  
+- Muokatut versiot on julkaistava samalla lisenssillä  
+- Lähdekoodi on pidettävä avoimena, jos ohjelmaa jaetaan  
+- Lisenssi takaa käyttäjien vapaudet ja avoimuuden
+
+Lisenssin koko teksti löytyy täältä:  
+https://www.gnu.org/licenses/gpl-3.0.en.html
