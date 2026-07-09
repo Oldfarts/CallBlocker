@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private Button saveBtn, logBtn, spamBtn;
 
     // Valikkonapit
-    private Button blockedNumbersBtn, blockedCountriesBtn, allowedNumbersBtn;
+    private Button blockedNumbersBtn, allowedCountriesBtn, allowedNumbersBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         spamBtn = findViewById(R.id.spamBtn);
 
         blockedNumbersBtn = findViewById(R.id.blockedNumbersBtn);
-        blockedCountriesBtn = findViewById(R.id.blockedCountriesBtn);
+        allowedCountriesBtn = findViewById(R.id.allowedCountriesBtn);
         allowedNumbersBtn = findViewById(R.id.allowedNumbersBtn);
 
         // Lataa asetukset
@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Puhelunestopalvelu päälle/pois
         switchCallScreening.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            //RoleManager rm = getSystemService(RoleManager.class);
 
             if (isChecked) {
                 // Pyydä puhelunestopalvelun roolia
@@ -73,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         // Tallenna asetukset
         saveBtn.setOnClickListener(v -> {
             SharedPreferences.Editor editor = prefs.edit();
@@ -90,8 +88,8 @@ public class MainActivity extends AppCompatActivity {
         blockedNumbersBtn.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, BlockedNumbersActivity.class)));
 
-        blockedCountriesBtn.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, BlockedCountriesActivity.class)));
+        allowedCountriesBtn.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, AllowedCountriesActivity.class)));
 
         allowedNumbersBtn.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, AllowedNumbersActivity.class)));

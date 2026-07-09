@@ -18,9 +18,13 @@ public class CallBlockerService extends CallScreeningService {
         boolean blockForeign = prefs.getBoolean("blockForeign", false);
         boolean blockSpam = prefs.getBoolean("blockSpam", false);
 
-        // Uudet listat
+        // Sallitut numerot (poikkeukset)
         Set<String> allowedNumbers = prefs.getStringSet("allowedNumbers", new HashSet<>());
-        Set<String> blockedCountries = prefs.getStringSet("blockedCountries", new HashSet<>());
+
+        // Sallitut maatunnukset (poikkeukset)
+        Set<String> allowedCountries = prefs.getStringSet("allowedCountries", new HashSet<>());
+
+        // Kielletyt numerot
         Set<String> blockedNumbers = prefs.getStringSet("blockedNumbers", new HashSet<>());
 
         String number = "";
@@ -55,18 +59,22 @@ public class CallBlockerService extends CallScreeningService {
             addLog("Estetty kielletty numero: " + number);
         }
 
-        // ⭐ Estä ulkomainen numero (jos ei sallittu)
-        if (blockForeign && !isFinnishNumber(number) && !allowedNumbers.contains(number)) {
-            shouldBlock = true;
-            addLog("Estetty ulkomainen numero: " + number);
-        }
+        // ⭐ Ulkomaiset numerot (jos ei sallittu)
+        if (blockForeign && !isFinnishNumber(number)) {
 
-        // ⭐ Estä kielletty maatunnus (jos ei sallittu)
-        for (String code : blockedCountries) {
-            if (number.startsWith(code) && !allowedNumbers.contains(number)) {
+            boolean allowedCountry = false;
+
+            // Tarkista poikkeusmaat
+            for (String code : allowedCountries) {
+                if (number.startsWith(code)) {
+                    allowedCountry = true;
+                    break;
+                }
+            }
+
+            if (!allowedCountry) {
                 shouldBlock = true;
-                addLog("Estetty kielletty maatunnus: " + number);
-                break;
+                addLog("Estetty ulkomainen numero: " + number);
             }
         }
 
@@ -104,8 +112,10 @@ public class CallBlockerService extends CallScreeningService {
     private boolean isFinnishNumber(String number) {
         if (number == null || number.trim().isEmpty()) return false;
 
+        // Suomi sallitaan aina
         if (number.startsWith("+358")) return true;
 
+        // Kotimaiset GSM-prefixit
         String[] prefixes = {
                 "040", "041", "042", "043", "044", "045", "046", "049",
                 "050", "051", "052", "053", "054", "055", "056", "059"

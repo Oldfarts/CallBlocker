@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="Sallitut maatunnukset (poikkeukset)"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp" />
+
+    <ListView
+        android:id="@+id/allowedCountriesList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:dividerHeight="1dp" />
+
+    <EditText
+        android:id="@+id/allowedCountryInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Syötä sallittu maatunnus esim. +44"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/addAllowedCountryBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lisää sallittu maatunnus"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/removeAllowedCountryBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Poista sallittu maatunnus"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/backBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Palaa päävalikkoon"
+        android:padding="10dp" />
+
+</LinearLayout>

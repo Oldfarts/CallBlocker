@@ -29,6 +29,7 @@
 
         <!-- Uudet näkymät -->
         <activity android:name=".AllowedNumbersActivity" />
+	<activity android:name=".AllowedCountriesActivity" />
         <activity android:name=".BlockedNumbersActivity" />
         <activity android:name=".BlockedCountriesActivity" />
 

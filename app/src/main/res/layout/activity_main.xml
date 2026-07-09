@@ -9,17 +9,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Puhelunestopalvelu -->
+        <TextView
+            android:text="Puhelunestopalvelu käytössä"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Switch
+            android:id="@+id/switchCallScreening"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <!-- Ulkomaiset puhelut -->
-<TextView
-    android:text="Puhelunestopalvelu käytössä"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
-
-<Switch
-    android:id="@+id/switchCallScreening"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
-
         <TextView
             android:text="Estä ulkomaiset puhelut"
             android:layout_width="match_parent"
@@ -41,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Poikkeukset (sallitut numerot) -->
+        <!-- Sallitut numerot -->
         <Button
             android:id="@+id/allowedNumbersBtn"
             android:layout_width="match_parent"
@@ -57,12 +58,12 @@
             android:text="Kielletyt numerot"
             android:padding="10dp" />
 
-        <!-- Kielletyt maatunnukset -->
+        <!-- Sallitut maatunnukset -->
         <Button
-            android:id="@+id/blockedCountriesBtn"
+            android:id="@+id/allowedCountriesBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Kielletyt maatunnukset"
+            android:text="Sallitut maatunnukset (poikkeukset)"
             android:padding="10dp" />
 
         <!-- Tallennus -->
@@ -71,13 +72,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tallenna asetukset" />
-
-        <!-- Roolin aktivointi 
-        <Button
-            android:id="@+id/roleBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ota puhelunestopalvelu käyttöön" />-->
 
         <!-- Lokit -->
         <Button
