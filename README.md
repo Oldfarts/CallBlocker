@@ -1,7 +1,8 @@
 # CallBlocker
 Estä ulkomaanpuhelut sekä häirikkösoittajat
 
-<img width="395" height="862" alt="image" src="https://github.com/user-attachments/assets/7f647bbd-8f04-4a01-8e1e-ac977e4f08da" />
+
+<img width="331" height="698" alt="image" src="https://github.com/user-attachments/assets/8c8619a5-a13a-47d2-9d66-1e60ee08e0c0" />
 
 
 # 📞 CallBlocker — Androidin puhelunestopalvelu
