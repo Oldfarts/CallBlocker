@@ -78,8 +78,6 @@ Koska sovellus ei tietoturvasyistä koske puhelimen muistiin tallennettuihin tut
 
 Lisensoitu **GNU GPLv3** -lisenssillä. Katso tarkemmat ehdot: https://www.gnu.org/licenses/gpl-3.0.en.html
 
-<img width="648" height="447" alt="image" src="https://github.com/user-attachments/assets/a2d32499-5c47-4b80-97ae-d061c988f7d6" />
-
 
 ---
 
