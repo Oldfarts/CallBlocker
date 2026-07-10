@@ -52,6 +52,20 @@ Sovellus pyytää Android-järjestelmältä `ROLE_CALL_SCREENING` -roolia. Kun r
     * Android-tietoturvan vuoksi oletussovelluksen roolia ei voi sulkea suoraan koodilla.
     * Kun käännät kytkimen pois päältä, sovellus ohjaa sinut suoraan Androidin **Oletussovellukset**-asetuksiin, jossa voit vaihtaa puhelunestosovellukseksi takaisin laitteen oman järjestelmäpuhelimen.
 
+OnePlus Nord CE 3 Litessä (OxygenOS-käyttöjärjestelmässä) oletussovellusten valikko on piilotettu hieman eri tavalla kuin puhtaassa Androidissa. Koska Androidin tietoturva estää sovellusta poistamasta omaa oletusrooliaan, sinun täytyy käydä klikkaamassa se pois OnePlussan asetuksista.
+
+## Tässä on tarkat, vaiheittaiset ohjeet palvelun poistamiseen juuri OnePlus CE lite 3 puhelinmallillasi:
+
+Vaiheittainen ohje OnePlus Nord CE 3 Litelle:
+Avaa puhelimen Asetukset (ratasikoni).
+
+Skrollaa alaspäin ja valitse Sovellukset (Apps).
+
+Valitse heti ylhäältä Oletussovellukset (Default apps).
+
+Etsi listalta kohta Puhelunestosovellus (joissain OxygenOS-versioissa nimellä Häiriöpuhelut ja roska-asetukset tai Caller ID & spam app).
+
+Klikkaa sitä, ja vaihda valinta CallBlocker -> Puhelin (järjestelmän oletus, jossa on Googlen sininen luuri-ikoni).
 ---
 
 ## 🧪 Testaus emulaattorilla
