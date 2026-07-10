@@ -42,17 +42,20 @@ Sovellus pyytää Android-järjestelmältä `ROLE_CALL_SCREENING` -roolia. Kun r
 
 ## 🔢 Ohje: Kielletyt numerot ja 100 numeron sarjat
 
-Sovellus tukee älykästä alkuosa-estoa. Sinun ei tarvitse syöttää peräkkäisiä numeroita yksitellen, vaan voit estää kokonaisen numerosarjan (esim. 100 tai 1000 peräkkäistä puhelinmyyntinumeroa) kahdella eri tavalla:
+Sovellus tukee älykästä alkuosa-estoa (prefix-suodatusta). Sinun ei tarvitse syöttää peräkkäisiä numeroita yksitellen, vaan voit estää kokonaisen numerosarjan (esim. 10, 100 tai 1000 peräkkäistä puhelinmyyntinumeroa) erittäin joustavasti:
 
-### Tapa 1: Alue-syöttö (Range)
-Voit kirjoittaa syötekenttään aloitusnumeron ja loppupäätteen viivalla erotettuna. Sovellus muuntaa sen automaattisesti tehokkaaksi hakukuvioiksi tallennushetkellä.
+### Tapa 1: Alue-syöttö (Range viivalla)
+Voit kirjoittaa syötekenttään aloitusnumeron ja loppupäätteen viivalla erotettuna. Sovellus muuntaa sen automaattisesti kysymysmerkeiksi tallennushetkellä.
 * **Esimerkki syötteestä:** `+358401234500-999`
-* **Mitä sovellus tekee:** Tallentaa listaan rivin `+358401234???`. Tämä estää kaikki 1000 numeroa väliltä `5000`–`5999`.
+* **Mitä sovellus tekee:** Tallentaa listaan rivin `+358401234???`. Tämä kattaa ja estää kaikki 1000 numeroa väliltä `5000`–`5999`.
 
-### Tapa 2: Kysymysmerkit (`?`)
-Voit käyttää kysymysmerkkiä jokerimerkkinä kuvaamaan mitä tahansa numeroa kyseisessä kohdassa.
-* **Esimerkki syötteestä:** `+358401234???`
-* **Vaikutus:** Kaikki puhelut, jotka alkavat numerolla `+358401234`, estetään välittömästi riippumatta siitä, mitkä kolme viimeistä numeroa ovat (kattaa 1000 peräkkäistä numeroa 000–999).
+### Tapa 2: Kysymysmerkit (`?`) — Joustava pituus
+Voit käyttää kysymysmerkkiä jokerimerkkinä kuvaamaan puuttuvia numeroita. Taustakoodi katsoo aina vain tekstiä **ennen ensimmäistä kysymysmerkkiä**, joten merkkien määrällä ei ole väliä:
+
+* **Esimerkki 1 (Kymmenen numeroa):** Syötät `+358401234?`  
+  $\rightarrow$ Järjestelmä ottaa talteen alkuosan `+358401234` ja estää kaikki kymmenen numeroa väliltä `0`–`9` (esim. `...340`, `...341`, `...349`).
+* **Esimerkki 2 (Sata/Tuhat numeroa):** Syötät `+358401234???`  
+  $\rightarrow$ Järjestelmä estää kaikki puhelut, jotka alkavat samalla `+358401234`-rungolla, olivatpa loput numerot mitä tahansa.
 
 ---
 
