@@ -5,139 +5,78 @@ Estä ulkomaanpuhelut sekä häirikkösoittajat
 <img width="331" height="698" alt="image" src="https://github.com/user-attachments/assets/8c8619a5-a13a-47d2-9d66-1e60ee08e0c0" />
 
 
-README.md — CallBlocker (2026, OnePlus‑yhteensopiva)
-markdown
-# 📞 CallBlocker — Androidin puhelunestopalvelu (2026)
+# 📞 CallBlocker (2026) — Androidin virallinen puhelunestopalvelu
 
-CallBlocker on Androidin **AccessibilityService‑pohjainen puhelunestopalvelu**, joka toimii
-luotettavasti myös OnePlus‑puhelimissa (mm. CE Lite 3), joissa Google Dialer estää
-perinteisen Call Screening ‑roolin.
+CallBlocker on kevyt, turvallinen ja akkuystävällinen Android-sovellus ei-toivottujen puheluiden automaattiseen suodattamiseen. Sovellus käyttää Androidin virallista `CallScreeningService`-rajapintaa, joka tutkii saapuvat puhelut taustalla ja katkaisee ne ennen kuin puhelin ehtii edes hälyttää.
 
-Sovellus estää ei‑toivotut puhelut automaattisesti taustalla.  
-Sovellusta ei tarvitse pitää auki — Android käynnistää palvelun aina kun puhelu saapuu.
+Asetusten määrittämisen jälkeen sovellusta ei tarvitse pitää auki — Android herättää palvelun automaattisesti aina, kun puhelu saapuu.
 
 ---
 
 ## 🔧 Ominaisuudet
 
-### ✔ Estä ulkomaiset puhelut
-Estää kaikki ulkomaiset puhelut yhdellä kytkimellä.  
-Suomi (+358) sallitaan automaattisesti.
-
-### ✔ Sallitut maatunnukset
-Voit sallia yksittäisiä ulkomaisia maatunnuksia, kuten:
-- +44 (Iso‑Britannia)
-- +1 (USA)
-- +420 (Tšekki)
-
-### ✔ Sallitut numerot
-Voit sallia yksittäisiä numeroita, jotka ohittavat kaikki estot.
-
-### ✔ Kielletyt numerot
-Voit estää yksittäisiä numeroita täsmällisesti.
-
-### ✔ Häirikkösoittajien esto
-Androidin Caller ID tunnistaa “Mahdollinen häirikkösoittaja” ‑puhelut.  
-Kun esto on päällä → puhelu katkaistaan automaattisesti.
-
-### ✔ Selkeä loki
-Jokaisesta estetystä puhelusta tallennetaan:
-- aikaleima  
-- numero  
-- syy estolle  
-
-Esimerkki:
-2026‑07‑09 08:15 — Numero: +447123456789 — Syy: Ulkomainen numero — maatunnus ei sallittu
-
-Koodi
-
-### ✔ Spam‑raportti
-Kaikki häirikkösoittajat tallennetaan erilliseen raporttiin.
+* **Estä ulkomaiset puhelut:** Katkaisee kaikki ulkomailta tulevat puhelut yhdellä kytkimellä. Suomalaiset numerot (+358) sallitaan aina.
+* **Sallitut maatunnukset (Poikkeukset):** Voit määrittää maakohtaisia poikkeuksia (esim. jos odotat puhelua kaverilta Ruotsista, voit sallia tunnuksen `+46`).
+* **Kielletyt numerot:** Erillinen musta lista numeroille, jotka haluat estää aina.
+* **Sallitut numerot:** Valkoinen lista numeroille, joiden puhelut pääsevät aina läpi riippumatta muista estoehdoista.
+* **Häirikkösoittajien esto:** Valmius Androidin oman "Mahdollinen häirikkösoittaja" (Spam/Caller ID) -tunnistuksen hyödyntämiseen.
+* **Selkeä estoloki:** Sovellus tallentaa reaaliaikaisen, selkeän ja ihmisluettavan lokin kaikista estetyistä puheluista aikaleimoineen ja syineen.
+* **Kaksirivinen Spam-raportti:** Erillinen, siisti näkymä tunnistetuille häiriösoittajille.
 
 ---
 
-## 🛠 Toimintalogiikka (2026, OnePlus‑yhteensopiva)
+## 🛠 Toimintalogiikka (CallScreeningService)
 
-### 🔥 1. Sovellus ei käytä Call Screening ‑roolia
-OnePlus CE Lite 3 ja monet muut mallit **estävät Call Screening ‑roolin**.  
-Siksi sovellus käyttää **AccessibilityService‑pohjaista puhelunestoa**, joka toimii kaikissa malleissa.
+Sovellus pyytää Android-järjestelmältä `ROLE_CALL_SCREENING` -roolia. Kun rooli on myönnetty, sovellus toimii laitteen virallisena puhelunseulojana.
 
-### 🔥 2. Accessibility‑palvelu havaitsee saapuvan puhelun
-Kun puhelu saapuu:
-- AccessibilityService saa eventin  
-- Palvelu yrittää lukea numeron  
-- Jos numero ei näy (OnePlus piilottaa UI:n) → käytetään varmaa katkaisua
+### Estojärjestys puhelun saapuessa:
+1. **Sallitut numerot:** Jos numero on valkoisella listalla $\rightarrow$ **Sallitaan** välittömästi.
+2. **Kielletyt numerot:** Jos numero on mustalla listalla $\rightarrow$ **Estetään**.
+3. **Ulkomaiset puhelut:** Jos esto on päällä, eikä numero ole suomalainen tai poikkeuslistalla $\rightarrow$ **Estetään**.
+4. **Spam-suodatus:** Jos puhelu tunnistetaan häiriköksi $\rightarrow$ **Estetään**.
 
-### 🔥 3. OnePlus‑varma puhelunesto
-Jos numeroa ei voi lukea, palvelu katkaisee puhelun:
-
-GLOBAL_ACTION_BACK
-GLOBAL_ACTION_HOME
-
-Koodi
-
-Tämä toimii **kaikissa OnePlus‑malleissa**, myös CE Lite 3:ssa.
-
-### 🔥 4. Estologiikka
-
-| Ehto | Toiminta |
-|------|----------|
-| Numero sallittujen listalla | Puhelu päästetään läpi |
-| Numero kiellettyjen listalla | Puhelu katkaistaan |
-| Ulkomaiset estetty & numero ei ole suomalainen | Puhelu katkaistaan |
-| Spam‑esto päällä & numero ulkomainen | Puhelu katkaistaan |
-| Numero ei näy (OnePlus) | Puhelu katkaistaan varmistetulla menetelmällä |
+> 💡 **Huomautus Androidin tietoturvasta:** Android suojelee oletuksena puhelimesi omia yhteystietoja (Contacts). Jos saapuva puhelu tulee numerosta, joka on tallennettu puhelimesi osoitekirjaan, Android luokittelee sen automaattisesti turvalliseksi eikä välitä sitä sovelluksen seulottavaksi. Sovellus suodattaa vain tuntemattomia numeroita.
 
 ---
 
 ## 📱 Käyttöohje
 
-### 1. Ota puhelunesto käyttöön
-Avaa:
-
-**Asetukset → Helppokäyttöisyys → Lataamasi palvelut → CallBlocker**
-
-Ota palvelu käyttöön.
-
-### 2. Aseta estot sovelluksessa
-- Estä ulkomaiset puhelut  
-- Estä häirikkösoittajat  
-- Lisää sallitut maatunnukset  
-- Lisää sallitut numerot  
-- Lisää kielletyt numerot  
-
-### 3. Sovellus toimii taustalla
-Sovellusta ei tarvitse pitää auki.  
-Android käynnistää palvelun automaattisesti puhelun yhteydessä.
+1.  **Palvelun aktivointi:**
+    * Avaa sovellus ja käännä **Puhelunestopalvelu käytössä** -kytkin päälle.
+    * Android avaa järjestelmäikkunan, jossa kysytään lupaa asettaa CallBlocker oletusarvoiseksi puhelunestosovellukseksi. Hyväksy pyyntö.
+2.  **Estojen määritys:**
+    * Kytke haluamasi estot (Ulkomaiset / Spam) päälle.
+    * Lisää tarvittavat numerot listoille.
+    * **Muista painaa "Tallenna asetukset" -painiketta**, jotta asetukset kirjoitetaan laitteen muistiin!
+3.  **Palvelun poistaminen:**
+    * Android-tietoturvan vuoksi oletussovelluksen roolia ei voi sulkea suoraan koodilla.
+    * Kun käännät kytkimen pois päältä, sovellus ohjaa sinut suoraan Androidin **Oletussovellukset**-asetuksiin, jossa voit vaihtaa puhelunestosovellukseksi takaisin laitteen oman järjestelmäpuhelimen.
 
 ---
 
-## 🧪 Testaus
+## 🧪 Testaus emulaattorilla
 
-### Ulkomaiset puhelut
-1. Laita **Estä ulkomaiset puhelut** päälle  
-2. Soita ulkomaisesta numerosta  
-3. Puhelu katkeaa → lokiin tulee merkintä
+Koska sovellus ei tietoturvasyistä koske puhelimen muistiin tallennettuihin tuttuihin kontakteihin, testaus kannattaa tehdä Android Studion emulaattorilla:
 
-### Sallittu maatunnus
-1. Lisää esim. **+44** sallittuihin  
-2. Soita +44‑numerosta  
-3. Puhelu tulee läpi
-
-### Häirikkösoittaja
-1. Laita **Estä häirikkösoittajat** päälle  
-2. Soita numerosta, jonka Android merkitsee “Mahdollinen häirikkösoittaja”  
-3. Puhelu katkeaa → spam‑raporttiin tulee merkintä
-
-### OnePlus‑varma katkaisu
-1. Soita numerosta, jota ei näytetä ruudulla  
-2. Puhelu katkeaa silti  
-3. Lokissa näkyy:  
-   **“OnePlus‑varma katkaisu”**
+1.  Varmista Logcatista, että sovellus sai roolin (`onResume: Role held = true`).
+2.  Avaa emulaattorin sivupaneelista kolme pistettä (`...`) $\rightarrow$ **Phone**.
+3.  Syötä *From number* -kenttään jokin tuntematon numero (esim. ulkomainen numero `+447123456`).
+4.  Paina **Call Device**.
+5.  Seuraa Logcatia: sinne pitäisi ilmestyä `CallScreeningService STARTED` ja `CALL BLOCKED`, ja puhelu katkeaa automaattisesti. Lokasivulle ilmestyy siisti pvm/klo-merkintä estosta.
 
 ---
 
-## 📂 Projektin rakenne
+## 🔒 Tietoturva ja Tekniikka
+
+* **100 % Paikallinen:** Sovellus ei pyydä internet-oikeuksia (`INTERNET`), eikä se lähetä mitään tietoja laitteen ulkopuolelle.
+* **Ei tietokantaraskautta:** Lokit ja listat tallennetaan suorituskykyisesti Androidin `SharedPreferences`-välimuistiin, ja raskaat I/O-tallennukset on eriytetty taustasäikeisiin, jotta puhelun katkaisu tapahtuu millisekunneissa ilman laitteen hidastumista.
+* Yhteensopiva Android 10+ (API 29) laitteiden kanssa.
+
+---
+
+## 📜 Lisenssi
+
+Lisensoitu **GNU GPLv3** -lisenssillä. Katso tarkemmat ehdot: https://www.gnu.org/licenses/gpl-3.0.en.html
 
 <img width="648" height="447" alt="image" src="https://github.com/user-attachments/assets/a2d32499-5c47-4b80-97ae-d061c988f7d6" />
 
