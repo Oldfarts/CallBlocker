@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView titleForeign;
     private TextView titleSpam;
 
-    private Button saveBtn;
+    // 🔥 saveBtn POISTETTU täältä
     private Button logBtn;
     private Button spamBtn;
 
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         titleForeign = findViewById(R.id.titleForeign);
         titleSpam = findViewById(R.id.titleSpam);
 
-        saveBtn = findViewById(R.id.saveBtn);
+        // 🔥 saveBtn POISTETTU alustuksesta
         logBtn = findViewById(R.id.logBtn);
         spamBtn = findViewById(R.id.spamBtn);
 
@@ -127,22 +127,19 @@ public class MainActivity extends AppCompatActivity {
             updateSwitchColor(switchCallScreening, titleCallScreening);
         });
 
-        switchBlockForeign.setOnCheckedChangeListener(
-                (b, c) -> updateSwitchColor(switchBlockForeign, titleForeign)
-        );
-
-        switchBlockSpam.setOnCheckedChangeListener(
-                (b, c) -> updateSwitchColor(switchBlockSpam, titleSpam)
-        );
-
-        saveBtn.setOnClickListener(v -> {
-            prefs.edit()
-                    .putBoolean("blockForeign", switchBlockForeign.isChecked())
-                    .putBoolean("blockSpam", switchBlockSpam.isChecked())
-                    .apply();
-
-            Toast.makeText(this, "Asetukset tallennettu", Toast.LENGTH_SHORT).show();
+        // 🔥 LENNOSSA TALLENNUS: Tallentaa asetuksen heti SharedPreferencesiin, kun kytkintä painetaan
+        switchBlockForeign.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("blockForeign", isChecked).apply();
+            updateSwitchColor(switchBlockForeign, titleForeign);
         });
+
+        // 🔥 LENNOSSA TALLENNUS: Tallentaa asetuksen heti SharedPreferencesiin, kun kytkintä painetaan
+        switchBlockSpam.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("blockSpam", isChecked).apply();
+            updateSwitchColor(switchBlockSpam, titleSpam);
+        });
+
+        // 🔥 saveBtn.setOnClickListener kokonaan POISTETTU tästä välistä
 
         blockedNumbersBtn.setOnClickListener(v ->
                 startActivity(new Intent(this, BlockedNumbersActivity.class)));

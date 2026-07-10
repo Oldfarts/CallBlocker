@@ -23,6 +23,9 @@ public class BlockedNumbersActivity extends AppCompatActivity {
     private ArrayAdapter<String> adapter;
     private ArrayList<String> list;
 
+    // 🔥 UUSI: Pidetään muistissa listalta valitun neron indeksi (-1 tarkoittaa, että mitään ei ole valittu)
+    private int selectedPosition = -1;
+
     private static final int MAX_BLOCKED_NUMBERS = 1000;
 
     @Override
@@ -44,12 +47,23 @@ public class BlockedNumbersActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         listView.setAdapter(adapter);
 
+        // 🔥 UUSI: Kosketuslista (Listan klikkauskuuntelija)
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            // Otetaan valitun rivin teksti talteen
+            String selectedItem = list.get(position);
+
+            // Syötetään se suoraan tekstikenttään käyttäjälle näkyviin
+            input.setText(selectedItem);
+
+            // Tallennetaan klikatun rivin indeksi muistiin poistoa varten
+            selectedPosition = position;
+        });
+
         // Lisää kielletty numero tai sarja
         addBtn.setOnClickListener(v -> {
             String inputText = input.getText().toString().trim();
             if (inputText.isEmpty()) return;
 
-            // Muunnetaan syöte älykkäästi (esim. range -> kysymysmerkeiksi)
             String processedNumber = convertToPattern(inputText);
 
             if (list.contains(processedNumber)) {
@@ -64,74 +78,71 @@ public class BlockedNumbersActivity extends AppCompatActivity {
 
             list.add(processedNumber);
             adapter.notifyDataSetChanged();
-            
-            // 🔥 TALLENNUS: prefs.edit() kutsutaan suoraan tässä lennossa tietoturvan vuoksi
-            getSharedPreferences("settings", MODE_PRIVATE).edit()
-                    .putStringSet("blockedNumbers", new HashSet<>(list))
-                    .apply();
 
-            input.setText(""); // Tyhjennetään kenttä syötön jälkeen
-            Toast.makeText(this, "Lisätty kiellettyihin: " + processedNumber, Toast.LENGTH_SHORT).show();
+            saveToPrefs();
+
+            input.setText("");
+            selectedPosition = -1; // Nollataan valinta
+            Toast.makeText(this, "Lisätty: " + processedNumber, Toast.LENGTH_SHORT).show();
         });
 
-        // Poista kielletty numero tai sarja
+        // 🔥 PÄIVITETTY: Poista-painikkeen älykäs logiikka
         removeBtn.setOnClickListener(v -> {
             String inputText = input.getText().toString().trim();
-            if (inputText.isEmpty()) return;
+            boolean removed = false;
 
-            String processedNumber = convertToPattern(inputText);
+            // Vaihtoehto A: Jos käyttäjä on koskettanut listalta jotain riviä
+            if (selectedPosition != -1 && selectedPosition < list.size()) {
+                list.remove(selectedPosition);
+                removed = true;
+            }
+            // Vaihtoehto B: Jos käyttäjä vain kirjoitti numeron käsin kenttään koskettamatta listaa
+            else if (!inputText.isEmpty()) {
+                String processedNumber = convertToPattern(inputText);
+                removed = list.remove(processedNumber);
+            }
 
-            if (list.remove(processedNumber)) {
+            if (removed) {
                 adapter.notifyDataSetChanged();
-                
-                getSharedPreferences("settings", MODE_PRIVATE).edit()
-                        .putStringSet("blockedNumbers", new HashSet<>(list))
-                        .apply();
-
+                saveToPrefs();
                 input.setText("");
-                Toast.makeText(this, "Poistettu kielletyistä", Toast.LENGTH_SHORT).show();
+                selectedPosition = -1; // Nollataan valinta poiston jälkeen
+                Toast.makeText(this, "Poistettu listalta", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Numeroa tai sarjaa ei löytynyt listasta", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Mitään ei poistettu. Valitse numero listalta tai kirjoita se kenttään.", Toast.LENGTH_SHORT).show();
             }
         });
 
         backBtn.setOnClickListener(v -> finish());
     }
 
-    /**
-     * Älykäs muunnos: Muuttaa esim "+358401234000-999" -> "+358401234???"
-     * Jos kyseessä on tavallinen numero tai valmis kysymysmerkkijono, palauttaa sen sellaisenaan.
-     */
+    // Apumetodi tallennuksen selkeyttämiseksi
+    private void saveToPrefs() {
+        getSharedPreferences("settings", MODE_PRIVATE).edit()
+                .putStringSet("blockedNumbers", new HashSet<>(list))
+                .apply();
+    }
+
     private String convertToPattern(String input) {
         if (!input.contains("-")) {
-            return input; // Tavallinen numero tai jo valmiiksi kysymysmerkkejä sisältävä jono
+            return input;
         }
-
         try {
             String[] parts = input.split("-");
             String start = parts[0].trim();
             String endSuffix = parts[1].trim();
-
-            // Lasketaan kuinka monta merkkiä lopusta korvataan kysymysmerkeillä
             int suffixLength = endSuffix.length();
-            
-            if (suffixLength >= start.length()) {
-                return input; // Virheellinen range, palautetaan alkuperäinen
-            }
 
-            // Otetaan talteen alkuosa (esim. "+358401234")
+            if (suffixLength >= start.length()) return input;
+
             String prefix = start.substring(0, start.length() - suffixLength);
-            
-            // Rakennetaan kysymysmerkit perään (esim. "???")
             StringBuilder wildcards = new StringBuilder();
             for (int i = 0; i < suffixLength; i++) {
                 wildcards.append("?");
             }
-
             return prefix + wildcards.toString();
-
         } catch (Exception e) {
-            return input; // Virhetilanteessa ei rikota mitään, tallennetaan sellaisenaan
+            return input;
         }
     }
 }

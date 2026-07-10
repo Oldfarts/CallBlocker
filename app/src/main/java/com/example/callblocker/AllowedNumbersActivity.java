@@ -23,6 +23,9 @@ public class AllowedNumbersActivity extends AppCompatActivity {
     private ArrayAdapter<String> adapter;
     private ArrayList<String> list;
 
+    // Pidetään muistissa listalta valitun rivin indeksi (-1 = ei valintaa)
+    private int selectedPosition = -1;
+
     private static final int MAX_ALLOWED_NUMBERS = 1000;
 
     @Override
@@ -30,101 +33,112 @@ public class AllowedNumbersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_allowed_numbers);
 
-        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-
         input = findViewById(R.id.allowedNumberInput);
         addBtn = findViewById(R.id.addAllowedNumberBtn);
         removeBtn = findViewById(R.id.removeAllowedNumberBtn);
         backBtn = findViewById(R.id.backBtn);
         listView = findViewById(R.id.allowedNumbersList);
 
+        // Ladataan olemassa olevat sallitut numerot
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
         Set<String> stored = prefs.getStringSet("allowedNumbers", new HashSet<>());
         list = new ArrayList<>(stored);
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         listView.setAdapter(adapter);
 
-        // Lisää sallittu numero / range
+        // Kosketuslista: Kun riviä klikataan, siirretään se kenttään ja otetaan indeksi talteen
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedItem = list.get(position);
+            input.setText(selectedItem);
+            selectedPosition = position;
+        });
+
+        // Lisää-painikkeen logiikka
         addBtn.setOnClickListener(v -> {
             String inputText = input.getText().toString().trim();
             if (inputText.isEmpty()) return;
 
-            ArrayList<String> expanded = expandRange(inputText);
+            String processedNumber = convertToPattern(inputText);
 
-            if (list.size() + expanded.size() > MAX_ALLOWED_NUMBERS) {
-                Toast.makeText(this,
-                        "Liikaa numeroita (max " + MAX_ALLOWED_NUMBERS + ")",
-                        Toast.LENGTH_LONG).show();
+            if (list.contains(processedNumber)) {
+                Toast.makeText(this, "Numero on jo sallittujen listalla", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            list.addAll(expanded);
-            adapter.notifyDataSetChanged();
-            editor.putStringSet("allowedNumbers", new HashSet<>(list)).apply();
-
-            Toast.makeText(this, "Numero(t) lisätty sallittuihin", Toast.LENGTH_SHORT).show();
-        });
-
-        // Poista sallittu numero / range
-        removeBtn.setOnClickListener(v -> {
-            String inputText = input.getText().toString().trim();
-            if (inputText.isEmpty()) return;
-
-            ArrayList<String> expanded = expandRange(inputText);
-            boolean removedAny = false;
-
-            for (String num : expanded) {
-                if (list.remove(num)) {
-                    removedAny = true;
-                }
+            if (list.size() >= MAX_ALLOWED_NUMBERS) {
+                Toast.makeText(this, "Liikaa numeroita (max " + MAX_ALLOWED_NUMBERS + ")", Toast.LENGTH_LONG).show();
+                return;
             }
 
+            list.add(processedNumber);
             adapter.notifyDataSetChanged();
-            editor.putStringSet("allowedNumbers", new HashSet<>(list)).apply();
 
-            if (removedAny) {
-                Toast.makeText(this, "Numero(t) poistettu sallituista", Toast.LENGTH_SHORT).show();
+            saveToPrefs(); // Tallennetaan korjatulla metodilla
+
+            input.setText("");
+            selectedPosition = -1;
+            Toast.makeText(this, "Lisätty sallittuihin: " + processedNumber, Toast.LENGTH_SHORT).show();
+        });
+
+        // Poista-painikkeen logiikka (Kosketuslistatuella)
+        removeBtn.setOnClickListener(v -> {
+            String inputText = input.getText().toString().trim();
+            boolean removed = false;
+
+            // Vaihtoehto A: Käyttäjä klikkasi riviä suoraan listasta
+            if (selectedPosition != -1 && selectedPosition < list.size()) {
+                list.remove(selectedPosition);
+                removed = true;
+            }
+            // Vaihtoehto B: Käyttäjä kirjoitti numeron käsin kenttään koskematta listaan
+            else if (!inputText.isEmpty()) {
+                String processedNumber = convertToPattern(inputText);
+                removed = list.remove(processedNumber);
+            }
+
+            if (removed) {
+                saveToPrefs(); // Tallennetaan muutokset levylle
+                adapter.notifyDataSetChanged(); // Päivitetään UI-lista heti
+                input.setText("");
+                selectedPosition = -1; // Välttämätön nollaus, ettei vanha indeksi jää kummittelemaan
+                Toast.makeText(this, "Poistettu sallituista", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Numeroa ei löytynyt listasta", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Valitse numero listalta tai kirjoita se kenttään poistaaksesi", Toast.LENGTH_SHORT).show();
             }
         });
 
         backBtn.setOnClickListener(v -> finish());
     }
 
-    // Tukee sekä yksittäistä numeroa että rangea: +358400740000-999
-    private ArrayList<String> expandRange(String input) {
-        ArrayList<String> result = new ArrayList<>();
+    // 🔥 KORJATTU TALLENNUSMETODI: Luo aina uuden HashSet-olion levylle kirjoitusta varten
+    private void saveToPrefs() {
+        Set<String> newSet = new HashSet<>(list);
+        getSharedPreferences("settings", MODE_PRIVATE).edit()
+                .putStringSet("allowedNumbers", newSet)
+                .apply();
+    }
 
+    private String convertToPattern(String input) {
         if (!input.contains("-")) {
-            result.add(input);
-            return result;
+            return input;
         }
-
         try {
             String[] parts = input.split("-");
             String start = parts[0].trim();
             String endSuffix = parts[1].trim();
+            int suffixLength = endSuffix.length();
 
-            // Esim: start = +358400740000, endSuffix = 999
-            String prefix = start.substring(0, start.length() - endSuffix.length());
-            int startNum = Integer.parseInt(start.substring(prefix.length()));
-            int endNum = Integer.parseInt(endSuffix);
+            if (suffixLength >= start.length()) return input;
 
-            if (endNum < startNum) {
-                result.add(input);
-                return result;
+            String prefix = start.substring(0, start.length() - suffixLength);
+            StringBuilder wildcards = new StringBuilder();
+            for (int i = 0; i < suffixLength; i++) {
+                wildcards.append("?");
             }
-
-            for (int i = startNum; i <= endNum; i++) {
-                result.add(prefix + i);
-            }
-
+            return prefix + wildcards.toString();
         } catch (Exception e) {
-            result.add(input);
+            return input;
         }
-
-        return result;
     }
 }
