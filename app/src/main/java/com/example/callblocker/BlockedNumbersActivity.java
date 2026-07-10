@@ -30,76 +30,81 @@ public class BlockedNumbersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blocked_numbers);
 
-        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-
         input = findViewById(R.id.blockedNumberInput);
         addBtn = findViewById(R.id.addBlockedNumberBtn);
         removeBtn = findViewById(R.id.removeBlockedNumberBtn);
         backBtn = findViewById(R.id.backBtn);
         listView = findViewById(R.id.blockedNumbersList);
 
+        // Ladataan olemassa olevat asetukset
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
         Set<String> stored = prefs.getStringSet("blockedNumbers", new HashSet<>());
         list = new ArrayList<>(stored);
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         listView.setAdapter(adapter);
 
-        // Lisää kielletty numero / range
+        // Lisää kielletty numero tai sarja
         addBtn.setOnClickListener(v -> {
             String inputText = input.getText().toString().trim();
             if (inputText.isEmpty()) return;
 
-            ArrayList<String> expanded = expandRange(inputText);
+            // Muunnetaan syöte älykkäästi (esim. range -> kysymysmerkeiksi)
+            String processedNumber = convertToPattern(inputText);
 
-            if (list.size() + expanded.size() > MAX_BLOCKED_NUMBERS) {
-                Toast.makeText(this,
-                        "Liikaa numeroita (max " + MAX_BLOCKED_NUMBERS + ")",
-                        Toast.LENGTH_LONG).show();
+            if (list.contains(processedNumber)) {
+                Toast.makeText(this, "Numero tai sarja on jo listalla", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            list.addAll(expanded);
-            adapter.notifyDataSetChanged();
-            editor.putStringSet("blockedNumbers", new HashSet<>(list)).apply();
+            if (list.size() >= MAX_BLOCKED_NUMBERS) {
+                Toast.makeText(this, "Liikaa numeroita (max " + MAX_BLOCKED_NUMBERS + ")", Toast.LENGTH_LONG).show();
+                return;
+            }
 
-            Toast.makeText(this, "Numero(t) lisätty kiellettyihin", Toast.LENGTH_SHORT).show();
+            list.add(processedNumber);
+            adapter.notifyDataSetChanged();
+            
+            // 🔥 TALLENNUS: prefs.edit() kutsutaan suoraan tässä lennossa tietoturvan vuoksi
+            getSharedPreferences("settings", MODE_PRIVATE).edit()
+                    .putStringSet("blockedNumbers", new HashSet<>(list))
+                    .apply();
+
+            input.setText(""); // Tyhjennetään kenttä syötön jälkeen
+            Toast.makeText(this, "Lisätty kiellettyihin: " + processedNumber, Toast.LENGTH_SHORT).show();
         });
 
-        // Poista kielletty numero / range
+        // Poista kielletty numero tai sarja
         removeBtn.setOnClickListener(v -> {
             String inputText = input.getText().toString().trim();
             if (inputText.isEmpty()) return;
 
-            ArrayList<String> expanded = expandRange(inputText);
-            boolean removedAny = false;
+            String processedNumber = convertToPattern(inputText);
 
-            for (String num : expanded) {
-                if (list.remove(num)) {
-                    removedAny = true;
-                }
-            }
+            if (list.remove(processedNumber)) {
+                adapter.notifyDataSetChanged();
+                
+                getSharedPreferences("settings", MODE_PRIVATE).edit()
+                        .putStringSet("blockedNumbers", new HashSet<>(list))
+                        .apply();
 
-            adapter.notifyDataSetChanged();
-            editor.putStringSet("blockedNumbers", new HashSet<>(list)).apply();
-
-            if (removedAny) {
-                Toast.makeText(this, "Numero(t) poistettu kielletyistä", Toast.LENGTH_SHORT).show();
+                input.setText("");
+                Toast.makeText(this, "Poistettu kielletyistä", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Numeroa ei löytynyt listasta", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Numeroa tai sarjaa ei löytynyt listasta", Toast.LENGTH_SHORT).show();
             }
         });
 
         backBtn.setOnClickListener(v -> finish());
     }
 
-    // Tukee sekä yksittäistä numeroa että rangea: +358400740000-999
-    private ArrayList<String> expandRange(String input) {
-        ArrayList<String> result = new ArrayList<>();
-
+    /**
+     * Älykäs muunnos: Muuttaa esim "+358401234000-999" -> "+358401234???"
+     * Jos kyseessä on tavallinen numero tai valmis kysymysmerkkijono, palauttaa sen sellaisenaan.
+     */
+    private String convertToPattern(String input) {
         if (!input.contains("-")) {
-            result.add(input);
-            return result;
+            return input; // Tavallinen numero tai jo valmiiksi kysymysmerkkejä sisältävä jono
         }
 
         try {
@@ -107,26 +112,26 @@ public class BlockedNumbersActivity extends AppCompatActivity {
             String start = parts[0].trim();
             String endSuffix = parts[1].trim();
 
-            // Esim: start = +358400740000, endSuffix = 999
-            String prefix = start.substring(0, start.length() - endSuffix.length());
-            int startNum = Integer.parseInt(start.substring(prefix.length()));
-            int endNum = Integer.parseInt(endSuffix);
-
-            if (endNum < startNum) {
-                // Jos loppu < alku → käsitellään yksittäisenä
-                result.add(input);
-                return result;
+            // Lasketaan kuinka monta merkkiä lopusta korvataan kysymysmerkeillä
+            int suffixLength = endSuffix.length();
+            
+            if (suffixLength >= start.length()) {
+                return input; // Virheellinen range, palautetaan alkuperäinen
             }
 
-            for (int i = startNum; i <= endNum; i++) {
-                result.add(prefix + i);
+            // Otetaan talteen alkuosa (esim. "+358401234")
+            String prefix = start.substring(0, start.length() - suffixLength);
+            
+            // Rakennetaan kysymysmerkit perään (esim. "???")
+            StringBuilder wildcards = new StringBuilder();
+            for (int i = 0; i < suffixLength; i++) {
+                wildcards.append("?");
             }
+
+            return prefix + wildcards.toString();
 
         } catch (Exception e) {
-            // Virhe syötteessä → käsitellään yksittäisenä numerona
-            result.add(input);
+            return input; // Virhetilanteessa ei rikota mitään, tallennetaan sellaisenaan
         }
-
-        return result;
     }
 }

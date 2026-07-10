@@ -34,27 +34,48 @@ public class CallBlockerService extends CallScreeningService {
         boolean block = false;
         String logReason = "";
 
-        // 1. Kielletty numero
-        if (NumberUtils.containsNumber(blockedNumbers, number)) {
-            block = true;
-            logReason = number + " estetty: kielletty numero";
+        // 🔥 REFAKTROITU 1. Kielletty numero (Tukee nyt +358401234??? -hakua lennosta)
+        String cleanedIncoming = number.replace(" ", ""); // Siivotaan saapuvan numeron välilyönnit varmuudeksi
+
+        for (String blockedPattern : blockedNumbers) {
+            String pattern = blockedPattern.replace(" ", ""); // Siivotaan listalla olevan kuvion välilyönnit
+
+            if (pattern.contains("?")) {
+                // Otetaan talteen vain osa ennen ensimmäistä kysymysmerkkiä (esim. "+358401234")
+                String prefix = pattern.split("\\?")[0];
+
+                // Jos saapuva numero alkaa tällä alkuosalla -> ESTETÄÄN
+                if (cleanedIncoming.startsWith(prefix)) {
+                    block = true;
+                    logReason = number + " estetty: kielletty numerosarja (" + blockedPattern + ")";
+                    break; // Löytyi osuma, lopetetaan loop
+                }
+            } else {
+                // Jos kuvio ei sisällä kysymysmerkkejä, käytetään alkuperäistä NumberUtils-tarkistusta tai suoraan equalsia
+                if (cleanedIncoming.equals(pattern)) {
+                    block = true;
+                    logReason = number + " estetty: kielletty numero";
+                    break; // Löytyi osuma, lopetetaan loop
+                }
+            }
         }
+
         // 2. Ulkomaiset numerot
-        else if (blockForeign && !NumberUtils.isFinnishNumber(number)) {
+        if (!block && blockForeign && !NumberUtils.isFinnishNumber(number)) {
             block = true;
             logReason = number + " estetty: ulkomainen numero";
         }
         // 3. Spam (tulevaisuuden laajennus)
-        else if (blockSpam) {
+        else if (!block && blockSpam) {
             // Tähän tulee myöhemmin tietokantatarkistus.
-            // Jos tunnistetaan spamiksi, block = true ja logReason = ...
+            // Seuraa samaa logiikkaa: block = true ja logReason = ...
         }
 
         // Rakennetaan vastaus
         CallResponse.Builder response = new CallResponse.Builder();
 
         if (block) {
-            Log.d(TAG, "CALL BLOCKED");
+            Log.d(TAG, "CALL BLOCKED. Reason: " + logReason);
             response.setDisallowCall(true)
                     .setRejectCall(true)
                     .setSkipCallLog(false) // Näkyy puhelimen omassa lokissa estettynä
