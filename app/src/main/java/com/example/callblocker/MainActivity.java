@@ -180,12 +180,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateSwitchColor(Switch sw, TextView title) {
+        // Luodaan väritilat (ColorStateList) kytkimen grafiikalle
+        android.content.res.ColorStateList greenColorList = android.content.res.ColorStateList.valueOf(getColor(R.color.colorActiveGreen));
+        android.content.res.ColorStateList redColorList = android.content.res.ColorStateList.valueOf(getColor(R.color.colorInactiveRed));
+
         if (sw.isChecked()) {
+            // Tekstit vihreäksi
             sw.setTextColor(getColor(R.color.colorActiveGreen));
             title.setTextColor(getColor(R.color.colorActiveGreen));
+
+            // Kytkimen nuppi ja taustapalkki vihreäksi
+            sw.setThumbTintList(greenColorList);
+            sw.setTrackTintList(greenColorList);
         } else {
+            // Tekstit punaiseksi
             sw.setTextColor(getColor(R.color.colorInactiveRed));
             title.setTextColor(getColor(R.color.colorInactiveRed));
+
+            // Kytkimen nuppi ja taustapalkki punaiseksi
+            sw.setThumbTintList(redColorList);
+            sw.setTrackTintList(redColorList);
         }
     }
 }
