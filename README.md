@@ -101,7 +101,6 @@ Lisensoitu **GNU GPLv3** -lisenssillä. Katso tarkemmat ehdot: https://www.gnu.o
 - Lokit tallennetaan vain laitteen muistiin  
 - Sovellus toimii kaikissa Android 10+ laitteissa  
 - OnePlus CE Lite 3 toimii nyt 100 % varmasti  
-- Call Screening ‑roolia ei enää käytetä  
 
 ---
 
