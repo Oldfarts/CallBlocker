@@ -5,6 +5,7 @@ Estä ulkomaanpuhelut sekä häirikkösoittajat
 <img width="331" height="698" alt="image" src="https://github.com/user-attachments/assets/8c8619a5-a13a-47d2-9d66-1e60ee08e0c0" />
 
 
+Markdown
 # 📞 CallBlocker (2026) — Androidin virallinen puhelunestopalvelu
 
 CallBlocker on kevyt, turvallinen ja akkuystävällinen Android-sovellus ei-toivottujen puheluiden automaattiseen suodattamiseen. Sovellus käyttää Androidin virallista `CallScreeningService`-rajapintaa, joka tutkii saapuvat puhelut taustalla ja katkaisee ne ennen kuin puhelin ehtii edes hälyttää.
@@ -16,12 +17,12 @@ Asetusten määrittämisen jälkeen sovellusta ei tarvitse pitää auki — Andr
 ## 🔧 Ominaisuudet
 
 * **Estä ulkomaiset puhelut:** Katkaisee kaikki ulkomailta tulevat puhelut yhdellä kytkimellä. Suomalaiset numerot (+358) sallitaan aina.
-* **Sallitut maatunnukset (Poikkeukset):** Voit määrittää maakohtaisia poikkeuksia (esim. jos odotat puhelua kaverilta Ruotsista, voit sallia tunnuksen `+46`).
-* **Kielletyt numerot:** Erillinen musta lista numeroille, jotka haluat estää aina.
+* **Sallitut maatunnukset (Poikkeukset):** Voit määrittää maakohtaisia poikkeuksia (esim. jos odotat puhelua Ruotsista, voit sallia tunnuksen `+46`).
+* **Kielletyt numerot & Sarjat:** Erillinen musta lista yksittäisille numeroille tai kokonaisille numerosarjoille (esim. puhelinmyyjien numeroblokit).
 * **Sallitut numerot:** Valkoinen lista numeroille, joiden puhelut pääsevät aina läpi riippumatta muista estoehdoista.
 * **Häirikkösoittajien esto:** Valmius Androidin oman "Mahdollinen häirikkösoittaja" (Spam/Caller ID) -tunnistuksen hyödyntämiseen.
-* **Selkeä estoloki:** Sovellus tallentaa reaaliaikaisen, selkeän ja ihmisluettavan lokin kaikista estetyistä puheluista aikaleimoineen ja syineen.
-* **Kaksirivinen Spam-raportti:** Erillinen, siisti näkymä tunnistetuille häiriösoittajille.
+* **Selkeä estoloki:** Sovellus tallentaa reaaliaikaisen, selkeän ja ihmisluettavan lokin kaikista estetyistä puheluista kauniilla aikaleimoilla (pvm klo) ja syillä.
+* **Kaksirivinen Spam-raportti:** Erillinen, siisti näkymä tunnistetuille häiriösoittajille, jossa pvm ja syy on eroteltu omille rivilleen.
 
 ---
 
@@ -31,7 +32,7 @@ Sovellus pyytää Android-järjestelmältä `ROLE_CALL_SCREENING` -roolia. Kun r
 
 ### Estojärjestys puhelun saapuessa:
 1. **Sallitut numerot:** Jos numero on valkoisella listalla $\rightarrow$ **Sallitaan** välittömästi.
-2. **Kielletyt numerot:** Jos numero on mustalla listalla $\rightarrow$ **Estetään**.
+2. **Kielletyt numerot & Sarjat:** Jos numero täsmää mustaan listaan tai estokuvioon $\rightarrow$ **Estetään**.
 3. **Ulkomaiset puhelut:** Jos esto on päällä, eikä numero ole suomalainen tai poikkeuslistalla $\rightarrow$ **Estetään**.
 4. **Spam-suodatus:** Jos puhelu tunnistetaan häiriköksi $\rightarrow$ **Estetään**.
 
@@ -39,75 +40,66 @@ Sovellus pyytää Android-järjestelmältä `ROLE_CALL_SCREENING` -roolia. Kun r
 
 ---
 
+## 🔢 Ohje: Kielletyt numerot ja 100 numeron sarjat
+
+Sovellus tukee älykästä alkuosa-estoa. Sinun ei tarvitse syöttää peräkkäisiä numeroita yksitellen, vaan voit estää kokonaisen numerosarjan (esim. 100 tai 1000 peräkkäistä puhelinmyyntinumeroa) kahdella eri tavalla:
+
+### Tapa 1: Alue-syöttö (Range)
+Voit kirjoittaa syötekenttään aloitusnumeron ja loppupäätteen viivalla erotettuna. Sovellus muuntaa sen automaattisesti tehokkaaksi hakukuvioiksi tallennushetkellä.
+* **Esimerkki syötteestä:** `+358401234500-999`
+* **Mitä sovellus tekee:** Tallentaa listaan rivin `+358401234???`. Tämä estää kaikki 1000 numeroa väliltä `5000`–`5999`.
+
+### Tapa 2: Kysymysmerkit (`?`)
+Voit käyttää kysymysmerkkiä jokerimerkkinä kuvaamaan mitä tahansa numeroa kyseisessä kohdassa.
+* **Esimerkki syötteestä:** `+358401234???`
+* **Vaikutus:** Kaikki puhelut, jotka alkavat numerolla `+358401234`, estetään välittömästi riippumatta siitä, mitkä kolme viimeistä numeroa ovat (kattaa 1000 peräkkäistä numeroa 000–999).
+
+---
+
 ## 📱 Käyttöohje
 
-1.  **Palvelun aktivointi:**
-    * Avaa sovellus ja käännä **Puhelunestopalvelu käytössä** -kytkin päälle.
-    * Android avaa järjestelmäikkunan, jossa kysytään lupaa asettaa CallBlocker oletusarvoiseksi puhelunestosovellukseksi. Hyväksy pyyntö.
-2.  **Estojen määritys:**
-    * Kytke haluamasi estot (Ulkomaiset / Spam) päälle.
-    * Lisää tarvittavat numerot listoille.
-    * **Muista painaa "Tallenna asetukset" -painiketta**, jotta asetukset kirjoitetaan laitteen muistiin!
-3.  **Palvelun poistaminen:**
-    * Android-tietoturvan vuoksi oletussovelluksen roolia ei voi sulkea suoraan koodilla.
-    * Kun käännät kytkimen pois päältä, sovellus ohjaa sinut suoraan Androidin **Oletussovellukset**-asetuksiin, jossa voit vaihtaa puhelunestosovellukseksi takaisin laitteen oman järjestelmäpuhelimen.
+### 1. Palvelun aktivointi
+* Avaa sovellus ja käännä **Puhelunestopalvelu käytössä** -kytkin päälle.
+* Android avaa järjestelmäikkunan, jossa kysytään lupaa asettaa CallBlocker oletusarvoiseksi puhelunestosovellukseksi. Hyväksy pyyntö. Kytkin muuttuu **vihreäksi**.
 
-OnePlus Nord CE 3 Litessä (OxygenOS-käyttöjärjestelmässä) oletussovellusten valikko on piilotettu hieman eri tavalla kuin puhtaassa Androidissa. Koska Androidin tietoturva estää sovellusta poistamasta omaa oletusrooliaan, sinun täytyy käydä klikkaamassa se pois OnePlussan asetuksista.
+### 2. Estojen määritys
+* Kytke haluamasi estot (Ulkomaiset / Spam) päälle.
+* Lisää tarvittavat numerot tai kysymysmerkkisarjat listoille.
+* **Muista painaa "Tallenna asetukset" -painiketta**, jotta asetukset kirjoitetaan laitteen muistiin!
 
-## Tässä on tarkat, vaiheittaiset ohjeet palvelun poistamiseen juuri OnePlus CE lite 3 puhelinmallillasi:
+### 3. Palvelun poistaminen (OnePlus Nord CE 3 Lite)
+Android-tietoturvan vuoksi oletussovelluksen roolia ei voi sulkea suoraan koodilla sovelluksen sisältä. Kun käännät kytkimen pois päältä, sovellus ohjaa sinut Androidin asetuksiin.
 
-Vaiheittainen ohje OnePlus Nord CE 3 Litelle:
-Avaa puhelimen Asetukset (ratasikoni).
+**Vaiheittainen ohje OnePlus-laitteille:**
+1. Avaa puhelimen **Asetukset** (ratasikoni).
+2. Skrollaa alaspäin ja valitse **Sovellukset** (Apps).
+3. Valitse heti ylhäältä **Oletussovellukset** (Default apps).
+4. Etsi listalta kohta **Puhelunestosovellus** (OxygenOS-versiosta riippuen nimellä *Häiriöpuhelut ja roska-asetukset* tai *Caller ID & spam app*).
+5. Klikkaa sitä, ja vaihda valinta *CallBlocker* $\rightarrow$ **Puhelin** (järjestelmän oletus, sininen luuri-ikoni).
+6. Kun palaat sovellukseen, pääkytkin on sammunut ja muuttunut **punaiseksi**.
 
-Skrollaa alaspäin ja valitse Sovellukset (Apps).
-
-Valitse heti ylhäältä Oletussovellukset (Default apps).
-
-Etsi listalta kohta Puhelunestosovellus (joissain OxygenOS-versioissa nimellä Häiriöpuhelut ja roska-asetukset tai Caller ID & spam app).
-
-Klikkaa sitä, ja vaihda valinta CallBlocker -> Puhelin (järjestelmän oletus, jossa on Googlen sininen luuri-ikoni).
 ---
 
 ## 🧪 Testaus emulaattorilla
 
 Koska sovellus ei tietoturvasyistä koske puhelimen muistiin tallennettuihin tuttuihin kontakteihin, testaus kannattaa tehdä Android Studion emulaattorilla:
 
-1.  Varmista Logcatista, että sovellus sai roolin (`onResume: Role held = true`).
-2.  Avaa emulaattorin sivupaneelista kolme pistettä (`...`) $\rightarrow$ **Phone**.
-3.  Syötä *From number* -kenttään jokin tuntematon numero (esim. ulkomainen numero `+447123456`).
-4.  Paina **Call Device**.
-5.  Seuraa Logcatia: sinne pitäisi ilmestyä `CallScreeningService STARTED` ja `CALL BLOCKED`, ja puhelu katkeaa automaattisesti. Lokasivulle ilmestyy siisti pvm/klo-merkintä estosta.
+1. Varmista Logcatista, että sovellus sai roolin (`onResume: Role held = true`).
+2. Avaa emulaattorin sivupaneelista kolme pistettä (`...`) $\rightarrow$ **Phone**.
+3. Syötä *From number* -kenttään jokin tuntematon numero (esim. ulkomainen numero `+447123456` tai estämääsi sarjaan kuuluva numero `+358401234555`).
+4. Paina **Call Device**.
+5. Seuraa Logcatia: sinne pitäisi ilmestyä `CallScreeningService STARTED` ja `CALL BLOCKED`, ja puhelu katkeaa automaattisesti. Lokasivulle ilmestyy siisti pvm/klo-merkintä estosta.
 
 ---
 
 ## 🔒 Tietoturva ja Tekniikka
 
-* **100 % Paikallinen:** Sovellus ei pyydä internet-oikeuksia (`INTERNET`), eikä se lähetä mitään tietoja laitteen ulkopuolelle.
-* **Ei tietokantaraskautta:** Lokit ja listat tallennetaan suorituskykyisesti Androidin `SharedPreferences`-välimuistiin, ja raskaat I/O-tallennukset on eriytetty taustasäikeisiin, jotta puhelun katkaisu tapahtuu millisekunneissa ilman laitteen hidastumista.
-* Yhteensopiva Android 10+ (API 29) laitteiden kanssa.
+* **100 % Paikallinen:** Sovellus ei pyydä internet-oikeuksia (`INTERNET`), eikä se lähetä mitään tietoja laitteen ulkopuolelle. Kaikki lokit ja listat tallennetaan vain laitteen omaan sisäiseen muistiin.
+* **Ei tietokantaraskautta:** Tiedot tallennetaan suorituskykyisesti Androidin `SharedPreferences`-välimuistiin. Raskaat I/O-tallennukset (kuten lokien kirjoitus) on eriytetty taustasäikeisiin, jotta puhelun katkaisu tapahtuu millisekunneissa ilman laitteen hidastumista tai akun kulutusta.
+* **Yhteensopivuus:** Yhteensopiva Android 10+ (API 29) laitteiden kanssa. Optimoitu toimimaan 100 % varmasti OnePlus Nord CE 3 Liten kanssa, kun oletussovelluksen rooli on aktivoitu.
 
 ---
 
 ## 📜 Lisenssi
 
-Lisensoitu **GNU GPLv3** -lisenssillä. Katso tarkemmat ehdot: https://www.gnu.org/licenses/gpl-3.0.en.html
-
-
----
-
-## 🔒 Tietoturva
-
-- Sovellus ei kerää eikä lähetä tietoja internetiin  
-- Lokit tallennetaan vain laitteen muistiin  
-- Sovellus toimii kaikissa Android 10+ laitteissa  
-- OnePlus CE Lite 3 toimii nyt 100 % varmasti  
-
----
-
-## 📜 Lisenssi — GNU GPLv3
-
-Sovellus on lisensoitu **GNU GPLv3** ‑lisenssillä.  
-Lisenssi takaa käyttäjien vapaudet ja avoimuuden.
-
-Lisenssin koko teksti:  
-https://www.gnu.org/licenses/gpl-3.0.en.html
+Lisensoitu **GNU GPLv3** -lisenssillä. Lisenssi takaa käyttäjien vapaudet, koodin avoimuuden ja suojan. Katso tarkemmat ehdot: https://www.gnu.org/licenses/gpl-3.0.en.html
