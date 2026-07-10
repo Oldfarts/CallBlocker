@@ -1,11 +1,8 @@
 # CallBlocker
 Estä ulkomaanpuhelut sekä häirikkösoittajat
 
-
 <img width="331" height="698" alt="image" src="https://github.com/user-attachments/assets/8c8619a5-a13a-47d2-9d66-1e60ee08e0c0" />
 
-
-Markdown
 # 📞 CallBlocker (2026) — Androidin virallinen puhelunestopalvelu
 
 CallBlocker on kevyt, turvallinen ja akkuystävällinen Android-sovellus ei-toivottujen puheluiden automaattiseen suodattamiseen. Sovellus käyttää Androidin virallista `CallScreeningService`-rajapintaa, joka tutkii saapuvat puhelut taustalla ja katkaisee ne ennen kuin puhelin ehtii edes hälyttää.
@@ -21,8 +18,8 @@ Asetusten määrittämisen jälkeen sovellusta ei tarvitse pitää auki — Andr
 * **Kielletyt numerot & Sarjat:** Erillinen musta lista yksittäisille numeroille tai kokonaisille numerosarjoille (esim. puhelinmyyjien numeroblokit).
 * **Sallitut numerot:** Valkoinen lista numeroille, joiden puhelut pääsevät aina läpi riippumatta muista estoehdoista.
 * **Häirikkösoittajien esto:** Valmius Androidin oman "Mahdollinen häirikkösoittaja" (Spam/Caller ID) -tunnistuksen hyödyntämiseen.
-* **Selkeä estoloki:** Sovellus tallentaa reaaliaikaisen, selkeän ja ihmisluettavan lokin kaikista estetyistä puheluista kauniilla aikaleimoilla (pvm klo) ja syillä.
-* **Kaksirivinen Spam-raportti:** Erillinen, siisti näkymä tunnistetuille häiriösoittajille, jossa pvm ja syy on eroteltu omille rivilleen.
+* **Älykäs kosketusohjaus listoilla:** Kaikissa alivalikoissa on kosketustuki – valitse numero listasta napauttamalla, jolloin se siirtyy tekstikenttään ja on helposti poistettavissa yhdellä klikkauksella.
+* **Interaktiivinen estoloki:** Sovellus tallentaa reaaliaikaisen lokin aikaleimoineen ja syineen. Voit **napauttaa mitä tahansa lokiriviä** lisätäksesi numeron salamannopeasti joko sallittujen tai kiellettyihin listalle ilman käsin kirjoittamista.
 
 ---
 
@@ -40,22 +37,34 @@ Sovellus pyytää Android-järjestelmältä `ROLE_CALL_SCREENING` -roolia. Kun r
 
 ---
 
-## 🔢 Ohje: Kielletyt numerot ja 100 numeron sarjat
+## 🔢 Ohje: Kielletyt/Sallitut numerot ja numerosarjat
 
-Sovellus tukee älykästä alkuosa-estoa (prefix-suodatusta). Sinun ei tarvitse syöttää peräkkäisiä numeroita yksitellen, vaan voit estää kokonaisen numerosarjan (esim. 10, 100 tai 1000 peräkkäistä puhelinmyyntinumeroa) erittäin joustavasti:
+Sovellus tukee älykästä alkuosa-estoa (prefix-suodatusta). Sinun ei tarvitse syöttää peräkkäisiä numeroita yksitellen, vaan voit estää tai sallia kokonaisen numerosarjan (esim. 10, 100 tai 1000 peräkkäistä puhelinmyyntinumeroa) erittäin joustavasti kahdella eri tavalla:
 
 ### Tapa 1: Alue-syöttö (Range viivalla)
-Voit kirjoittaa syötekenttään aloitusnumeron ja loppupäätteen viivalla erotettuna. Sovellus muuntaa sen automaattisesti kysymysmerkeiksi tallennushetkellä.
+Voit kirjoittaa syötekenttään aloitusnumeron ja loppupäätteen viivalla erotettuna. Sovellus muuntaa sen automaattisesti kysymysmerkeiksi tallennushetkellä suorituskyvyn maksimoimiseksi.
 * **Esimerkki syötteestä:** `+358401234500-999`
 * **Mitä sovellus tekee:** Tallentaa listaan rivin `+358401234???`. Tämä kattaa ja estää kaikki 1000 numeroa väliltä `5000`–`5999`.
 
 ### Tapa 2: Kysymysmerkit (`?`) — Joustava pituus
 Voit käyttää kysymysmerkkiä jokerimerkkinä kuvaamaan puuttuvia numeroita. Taustakoodi katsoo aina vain tekstiä **ennen ensimmäistä kysymysmerkkiä**, joten merkkien määrällä ei ole väliä:
-
 * **Esimerkki 1 (Kymmenen numeroa):** Syötät `+358401234?`  
-  $\rightarrow$ Järjestelmä ottaa talteen alkuosan `+358401234` ja estää kaikki kymmenen numeroa väliltä `0`–`9` (esim. `...340`, `...341`, `...349`).
+  $\rightarrow$ Järjestelmä ottaa talteen alkuosan `+358401234` ja suodattaa kaikki kymmenen numeroa väliltä `0`–`9` (esim. `...340`, `...341`, `...349`).
 * **Esimerkki 2 (Sata/Tuhat numeroa):** Syötät `+358401234???`  
-  $\rightarrow$ Järjestelmä estää kaikki puhelut, jotka alkavat samalla `+358401234`-rungolla, olivatpa loput numerot mitä tahansa.
+  $\rightarrow$ Järjestelmä suodattaa kaikki puhelut, jotka alkavat samalla `+358401234`-rungolla, olivatpa loput numerot mitä tahansa.
+
+---
+
+## 📋 Ohje: Interaktiivisen lokilistan käyttö
+
+Jos huomaat estolokissa numeron, jonka eston haluat purkaa (tai haluat varmistaa numeron eston jatkossa), sinun ei tarvitse kirjoittaa numeroa käsin mihinkään.
+
+1. Avaa **Estoloki** sovelluksesta.
+2. **Napauta** haluamaasi lokiriviä (esim. `[10.07.2026 12:45:00] +358401234567 estetty...`).
+3. Ruudulle aukeaa valintaikkuna (*AlertDialog*), jossa on vaihtoehdot:
+   * **Salli numero:** Lisää numeron automaattisesti *Sallitut numerot* -valkoiselle listalle.
+   * **Estä numero:** Lisää numeron automaattisesti *Kielletyt numerot* -mustalle listalle.
+   * **Peruuta:** Sulkee valikon tekemättä muutoksia.
 
 ---
 
@@ -98,11 +107,12 @@ Koska sovellus ei tietoturvasyistä koske puhelimen muistiin tallennettuihin tut
 ## 🔒 Tietoturva ja Tekniikka
 
 * **100 % Paikallinen:** Sovellus ei pyydä internet-oikeuksia (`INTERNET`), eikä se lähetä mitään tietoja laitteen ulkopuolelle. Kaikki lokit ja listat tallennetaan vain laitteen omaan sisäiseen muistiin.
-* **Ei tietokantaraskautta:** Tiedot tallennetaan suorituskykyisesti Androidin `SharedPreferences`-välimuistiin. Raskaat I/O-tallennukset (kuten lokien kirjoitus) on eriytetty taustasäikeisiin, jotta puhelun katkaisu tapahtuu millisekunneissa ilman laitteen hidastumista tai akun kulutusta.
+* **Ei tietokantaraskautta:** Tiedot tallennetaan suorituskykyisesti Androidin `SharedPreferences`-välimuistiin käyttäen tiukat kriteerit täyttävää muistinallintaa. Tallennuksissa luodaan aina uudet `HashSet`-oliot, mikä pakottaa Androidin kirjoittamaan muutokset levylle lennossa ilman synkronointiongelmia.
 * **Yhteensopivuus:** Yhteensopiva Android 10+ (API 29) laitteiden kanssa. Optimoitu toimimaan 100 % varmasti OnePlus Nord CE 3 Liten kanssa, kun oletussovelluksen rooli on aktivoitu.
 
 ---
 
 ## 📜 Lisenssi
 
+Lisensoitu **GNU GPLv3** -lisenssillä. Lisenssi takaa käyttäjien vapaudet, koodin avoimuuden ja suojan. Katso tarkemmat ehdot: https://www.gnu.org/licenses/gpl-3.0.en.html
 Lisensoitu **GNU GPLv3** -lisenssillä. Lisenssi takaa käyttäjien vapaudet, koodin avoimuuden ja suojan. Katso tarkemmat ehdot: https://www.gnu.org/licenses/gpl-3.0.en.html
