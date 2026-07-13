@@ -81,6 +81,20 @@ Jos huomaat estolokissa numeron, jonka eston haluat purkaa (tai haluat varmistaa
 
 ---
 
+## 🔒 Tietoturva ja Tekniikka
+
+* **100 % Paikallinen:** Sovellus ei pyydä internet-oikeuksia (`INTERNET`), eikä se lähetä mitään tietoja laitteen ulkopuolelle. Kaikki lokit ja listat tallennetaan vain laitteen omaan sisäiseen muistiin.
+* **Ei tietokantaraskautta:** Tiedot tallennetaan suorituskykyisesti Androidin `SharedPreferences`-välimuistiin käyttäen tiukat kriteerit täyttävää muistinallintaa. Tallennuksissa luodaan aina uudet `HashSet`-oliot, mikä pakottaa Androidin kirjoittamaan muutokset levylle lennossa ilman synkronointiongelmia.
+* **Yhteensopivuus:** Yhteensopiva Android 10+ (API 29) laitteiden kanssa. Optimoitu toimimaan 100 % varmasti OnePlus Nord CE 3 Liten kanssa, kun oletussovelluksen rooli on aktivoitu.
+
+---
+
+## 📜 Lisenssi
+
+Lisensoitu **GNU GPLv3** -lisenssillä. Lisenssi takaa käyttäjien vapaudet, koodin avoimuuden ja suojan. Katso tarkemmat ehdot: https://www.gnu.org/licenses/gpl-3.0.en.html
+
+---
+
 ## 📱 Käyttöohje
 
 ### 1. Palvelun aktivointi
@@ -108,14 +122,4 @@ Käynnistä emulaattori (esim. API 34) ja aja komento:
 
 ---
 
-## 🔒 Tietoturva ja Tekniikka
 
-* **100 % Paikallinen:** Sovellus ei pyydä internet-oikeuksia (`INTERNET`), eikä se lähetä mitään tietoja laitteen ulkopuolelle. Kaikki lokit ja listat tallennetaan vain laitteen omaan sisäiseen muistiin.
-* **Ei tietokantaraskautta:** Tiedot tallennetaan suorituskykyisesti Androidin `SharedPreferences`-välimuistiin käyttäen tiukat kriteerit täyttävää muistinallintaa. Tallennuksissa luodaan aina uudet `HashSet`-oliot, mikä pakottaa Androidin kirjoittamaan muutokset levylle lennossa ilman synkronointiongelmia.
-* **Yhteensopivuus:** Yhteensopiva Android 10+ (API 29) laitteiden kanssa. Optimoitu toimimaan 100 % varmasti OnePlus Nord CE 3 Liten kanssa, kun oletussovelluksen rooli on aktivoitu.
-
----
-
-## 📜 Lisenssi
-
-Lisensoitu **GNU GPLv3** -lisenssillä. Lisenssi takaa käyttäjien vapaudet, koodin avoimuuden ja suojan. Katso tarkemmat ehdot: https://www.gnu.org/licenses/gpl-3.0.en.html
