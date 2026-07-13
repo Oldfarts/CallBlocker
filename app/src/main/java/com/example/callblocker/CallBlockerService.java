@@ -16,7 +16,6 @@ public class CallBlockerService extends CallScreeningService {
         Log.d(TAG, "CallScreeningService STARTED");
 
         if (callDetails == null || callDetails.getHandle() == null) {
-            // Varmistetaan ettei sovellus kaadu, jos puhelun tiedot ovat tyhjät
             respondToCall(callDetails, new CallResponse.Builder().setDisallowCall(false).build());
             return;
         }
@@ -28,34 +27,29 @@ public class CallBlockerService extends CallScreeningService {
         boolean blockForeign = prefs.getBoolean("blockForeign", false);
         boolean blockSpam = prefs.getBoolean("blockSpam", false);
 
-        // Luodaan uusi setti, jotta viittaukset eivät sekoita Androidin välimuistia
         Set<String> blockedNumbers = new HashSet<>(prefs.getStringSet("blockedNumbers", new HashSet<>()));
 
         boolean block = false;
         String logReason = "";
 
-        // 🔥 REFAKTROITU 1. Kielletty numero (Tukee nyt +358401234??? -hakua lennosta)
-        String cleanedIncoming = number.replace(" ", ""); // Siivotaan saapuvan numeron välilyönnit varmuudeksi
+        // 1. Kielletty numero (Tukee +358401234??? -hakua lennosta)
+        String cleanedIncoming = number.replace(" ", "");
 
         for (String blockedPattern : blockedNumbers) {
-            String pattern = blockedPattern.replace(" ", ""); // Siivotaan listalla olevan kuvion välilyönnit
+            String pattern = blockedPattern.replace(" ", "");
 
             if (pattern.contains("?")) {
-                // Otetaan talteen vain osa ennen ensimmäistä kysymysmerkkiä (esim. "+358401234")
                 String prefix = pattern.split("\\?")[0];
-
-                // Jos saapuva numero alkaa tällä alkuosalla -> ESTETÄÄN
                 if (cleanedIncoming.startsWith(prefix)) {
                     block = true;
                     logReason = number + " estetty: kielletty numerosarja (" + blockedPattern + ")";
-                    break; // Löytyi osuma, lopetetaan loop
+                    break;
                 }
             } else {
-                // Jos kuvio ei sisällä kysymysmerkkejä, käytetään alkuperäistä NumberUtils-tarkistusta tai suoraan equalsia
                 if (cleanedIncoming.equals(pattern)) {
                     block = true;
                     logReason = number + " estetty: kielletty numero";
-                    break; // Löytyi osuma, lopetetaan loop
+                    break;
                 }
             }
         }
@@ -65,13 +59,24 @@ public class CallBlockerService extends CallScreeningService {
             block = true;
             logReason = number + " estetty: ulkomainen numero";
         }
-        // 3. Spam (tulevaisuuden laajennus)
+
+        // 3. KORJATTU: Automaattinen häirikkötunnistus raakabittien avulla (Yhteensopiva kaikkien SDK-versioiden kanssa)
         else if (!block && blockSpam) {
-            // Tähän tulee myöhemmin tietokantatarkistus.
-            // Seuraa samaa logiikkaa: block = true ja logReason = ...
+            // PROPERTY_ASSUMED_SPAM esiteltiin järjestelmätasolla Android 11+ (API 30+)
+            // Sen bittiarvo Android-järjestelmässä on aina 0x00020000 (131072)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                int PROPERTY_ASSUMED_SPAM_VALUE = 0x00020000;
+
+                boolean isAssumedSpam = (callDetails.getCallProperties() & PROPERTY_ASSUMED_SPAM_VALUE) != 0;
+
+                if (isAssumedSpam) {
+                    block = true;
+                    logReason = number + " estetty: Mahdollinen häirikkösoittaja (Android-tunnistus)";
+                }
+            }
         }
 
-        // Rakennetaan vastaus
+        // Rakennetaan vastaus järjestelmälle
         CallResponse.Builder response = new CallResponse.Builder();
 
         if (block) {
@@ -81,7 +86,6 @@ public class CallBlockerService extends CallScreeningService {
                     .setSkipCallLog(false) // Näkyy puhelimen omassa lokissa estettynä
                     .setSkipNotification(true);
 
-            // Tehdään lokikirjaus taustalla, ettei se viivästytä puhelun käsittelyä
             final String finalLogReason = logReason;
             new Thread(() -> addLog(finalLogReason)).start();
 
@@ -99,10 +103,7 @@ public class CallBlockerService extends CallScreeningService {
         SharedPreferences logPrefs = getSharedPreferences("log", MODE_PRIVATE);
         Set<String> logs = new HashSet<>(logPrefs.getStringSet("entries", new HashSet<>()));
 
-        // Lisätään uusi lokirivi
         logs.add(System.currentTimeMillis() + " : " + text);
-
-        // commit() taustasäikeessä varmistaa, että tiedot kirjoitetaan heti levylle
         logPrefs.edit().putStringSet("entries", logs).commit();
     }
 }
