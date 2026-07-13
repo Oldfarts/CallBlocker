@@ -38,18 +38,6 @@ Sovellus pyytää Android-järjestelmältä `ROLE_CALL_SCREENING` -roolia. Kun r
 
 ---
 
-## 🔋 TÄRKEÄÄ: Akun optimoinnin ohittaminen (OnePlus Nord CE 3 Lite)
-
-OnePlus-laitteiden OxygenOS-käyttöjärjestelmä sisältää erittäin aggressiivisen virranhallinnan, joka sulkee taustalla odottavia sovelluksia säästääkseen akkua. Jos Android pääsee nukuttamaan CallBlockerin taustaprosessin, se ei ehdi reagoimaan puheluun sekunnin murto-osassa, jolloin häirikköpuhelu hälyttää virheellisesti läpi.
-
-**Tee nämä määritykset asennuksen jälkeen suoraan puhelimestasi:**
-1. Etsi **CallBlocker**-sovelluksen kuvake puhelimesi kotinäytöltä tai sovellusvalikosta.
-2. Paina kuvaketta pitkään pohjassa ja valitse aukeavasta pikavalikosta **Sovelluksen tiedot** (App info / i-kuvake).
-3. Etsi ja valitse kohta **Akun käyttö** (Battery usage) tai **Akku**.
-4. Muuta oletusasetus *Optimoi automaattisesti* (Auto-optimize) tilaan **Älä optimoi** (Don't optimize) tai kytke päälle **Salli taustatoiminta** (Allow background activity).
-
----
-
 ## 🔢 Ohje: Kielletyt/Sallitut numerot ja numerosarjat
 
 Sovellus tukee älykästä alkuosa-estoa (prefix-suodatusta). Sinun ei tarvitse syöttää peräkkäisiä numeroita yksitellen, vaan voit estää tai sallia kokonaisen numerosarjan (esim. puhelinmyyjien numeroblokit) kahdella eri tavalla:
@@ -100,6 +88,16 @@ Lisensoitu **GNU GPLv3** -lisenssillä. Lisenssi takaa käyttäjien vapaudet, ko
 ### 1. Palvelun aktivointi
 * Avaa sovellus ja käännä **Puhelunestopalvelu käytössä** -kytkin päälle.
 * Android avaa järjestelmäikkunan, jossa pyydetään lupaa asettaa CallBlocker oletusarvoiseksi puhelunestosovellukseksi. Hyväksy pyyntö. Kytkin muuttuu **vihreäksi**.
+
+### 🔋 TÄRKEÄÄ: Akun optimoinnin ohittaminen (OnePlus Nord CE 3 Lite)
+
+OnePlus-laitteiden OxygenOS-käyttöjärjestelmä sisältää erittäin aggressiivisen virranhallinnan, joka sulkee taustalla odottavia sovelluksia säästääkseen akkua. Jos Android pääsee nukuttamaan CallBlockerin taustaprosessin, se ei ehdi reagoimaan puheluun sekunnin murto-osassa, jolloin häirikköpuhelu hälyttää virheellisesti läpi.
+
+**Tee nämä määritykset asennuksen jälkeen suoraan puhelimestasi:**
+1. Etsi **CallBlocker**-sovelluksen kuvake puhelimesi kotinäytöltä tai sovellusvalikosta.
+2. Paina kuvaketta pitkään pohjassa ja valitse aukeavasta pikavalikosta **Sovelluksen tiedot** (App info / i-kuvake).
+3. Etsi ja valitse kohta **Akun käyttö** (Battery usage) tai **Akku**.
+4. Muuta oletusasetus *Optimoi automaattisesti* (Auto-optimize) tilaan **Älä optimoi** (Don't optimize) tai kytke päälle **Salli taustatoiminta** (Allow background activity).
 
 ### 2. Estojen määritys
 * Kytke haluamasi estot (Ulkomaiset / Häirikkösoittajat) päälle. Kytkimet tallentuvat sekunnissa taustalle ja muuttuvat tilan mukaan **vihreiksi** tai **punaisiksi**.
