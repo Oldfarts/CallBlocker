@@ -3,6 +3,7 @@ package com.example.callblocker;
 import android.content.SharedPreferences;
 import android.telecom.Call;
 import android.telecom.CallScreeningService;
+import android.telecom.Connection;
 import android.util.Log;
 import java.util.HashSet;
 import java.util.Set;
@@ -62,16 +63,18 @@ public class CallBlockerService extends CallScreeningService {
 
         // 3. KORJATTU: Automaattinen häirikkötunnistus raakabittien avulla (Yhteensopiva kaikkien SDK-versioiden kanssa)
         else if (!block && blockSpam) {
-            // PROPERTY_ASSUMED_SPAM esiteltiin järjestelmätasolla Android 11+ (API 30+)
-            // Sen bittiarvo Android-järjestelmässä on aina 0x00020000 (131072)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                // A) Tarkistetaan OnePlussan paikallinen spambitti
                 int PROPERTY_ASSUMED_SPAM_VALUE = 0x00020000;
-
                 boolean isAssumedSpam = (callDetails.getCallProperties() & PROPERTY_ASSUMED_SPAM_VALUE) != 0;
 
-                if (isAssumedSpam) {
+                // B) UUSI: Tarkistetaan verkon antama varmennus (jos epäonnistunut -> usein spam)
+                int verificationStatus = callDetails.getCallerNumberVerificationStatus();
+                boolean verificationFailed = (verificationStatus == Connection.VERIFICATION_STATUS_FAILED);
+
+                if (isAssumedSpam || verificationFailed) {
                     block = true;
-                    logReason = number + " estetty: Mahdollinen häirikkösoittaja (Android-tunnistus)";
+                    logReason = number + " estetty: Järjestelmän tunnistama häirikkö (Spam/Verification Failed)";
                 }
             }
         }

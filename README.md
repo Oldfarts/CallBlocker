@@ -79,6 +79,24 @@ Jos huomaat estolokissa numeron, jonka eston haluat purkaa (tai haluat varmistaa
 * Lisää tarvittavat numerot tai kysymysmerkkisarjat listoille.
 * **Muista painaa "Tallenna asetukset" -painiketta**, jotta asetukset kirjoitetaan laitteen muistiin!
 
+### 2.1 Oneplus asetukset
+OnePlussan omien asetusten hyödyntäminen (Suositeltu kaveriksi)
+Koska OnePlus Nord CE 3 Liten oma puhelinsovellus (Google Dialer) tekee tuon tietokantahaun livenä, kannattaa antaa sen myös katkaista puhelut puolestasi silloin, kun se saa tiedon sekunnin murto-osan myöhässä.
+
+Avaa puhelimesi Puhelin-sovellus (sininen luuri).
+
+Klikkaa oikeasta yläkulmasta kolmea pistettä ja valitse Asetukset.
+
+Valitse Soittajan tunnus ja roskaposti (Caller ID & Spam).
+
+Kytke päälle Suodata häiriöpuhelut (Filter spam calls).
+
+Miten nämä toimivat nyt yhdessä?
+
+CallBlocker hoitaa ne puhelut, jotka ovat mustalla listallasi, ulkomaisia tai joiden järjestelmätason tunnistus on heti valmiina.
+
+OnePlussan oma suodatin nappaa ne loput taustatietokannasta livenä varmistuvat häiriköt, joihin kolmannen osapuolen sovellus ei saanut bittiä ajoissa kiinni.
+
 ### 3. Palvelun poistaminen (OnePlus Nord CE 3 Lite)
 Android-tietoturvan vuoksi oletussovelluksen roolia ei voi sulkea suoraan koodilla sovelluksen sisältä. Kun käännät kytkimen pois päältä, sovellus ohjaa sinut Androidin asetuksiin.
 

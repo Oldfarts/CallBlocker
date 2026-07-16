@@ -52,7 +52,7 @@
                 style="@style/CallBlocker.Label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ota puhelunestopalvelu käyttöön, jotta estot toimivat taustalla OnePlus Nord CE 3 Litessä." />
+                android:text="Ota puhelunestopalvelu käyttöön, jotta estot toimivat taustalla." />
 
             <Switch
                 android:id="@+id/switchCallScreening"
